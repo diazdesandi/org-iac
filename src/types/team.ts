@@ -38,7 +38,7 @@ export const TeamsConfigSchema = z
 		for (const team of data.teams) {
 			if (seen.has(team.slug)) {
 				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
+					code: "custom",
 					path: ["teams"],
 					message: `duplicate team slug "${team.slug}"`,
 				});

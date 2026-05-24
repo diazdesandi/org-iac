@@ -15,7 +15,7 @@ teams:
       - username: diazdesandi
         role: member
 
-repo_access:
+repoAccess:
   ctl:
     - team: maintainers
       permission: admin

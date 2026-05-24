@@ -2,7 +2,7 @@ import {
   buildRulesetBranchProtection,
   config,
   resolveTeamAccess,
-} from "@/config";
+} from "@/core";
 import { createTeams, createTeamMemberships, createRepo } from "@/resources";
 import { BranchProtectionConfig, TeamResourceMap } from "./types";
 
@@ -11,7 +11,7 @@ interface BranchProtection {
   [pattern: string]: BranchProtectionConfig;
 }
 
-const setupOrg = async () => {
+const setupOrg: () => Promise<void> = async (): Promise<void> => {
   const { org, repos, teams, rulesets, labels } = config;
 
   const teamResources: TeamResourceMap = createTeams(teams);

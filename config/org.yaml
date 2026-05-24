@@ -3,9 +3,9 @@ organization: diazdesandi-org
 
 defaults:
   visibility: public
-  default_branch: main
-  delete_branch_on_merge: true
-  merge_strategies:
+  defaultBranch: main
+  deleteBranchOnMerge: true
+  mergeStrategies:
     - squash
   features:
     issues: true

@@ -8,16 +8,16 @@ repos:
       - automation
       - github-actions
     template: none
-    merge_strategies:
+    mergeStrategies:
       - squash
-    delete_branch_on_merge: true
-    auto_init: false
-    branch_protection:
+    deleteBranchOnMerge: true
+    autoInit: false
+    branchProtection:
       main:
-        required_review_count: 1
-        required_status_checks:
+        requiredReviewCount: 1
+        requiredStatusChecks:
           - build
-        require_linear_history: true
+        requireLinearHistory: true
 
   - name: ctl
     description: A repository for managing control logic and operations.
@@ -29,73 +29,73 @@ repos:
       - automation
       - menu-bar
     template: swift-package
-    merge_strategies:
+    mergeStrategies:
       - squash
-    delete_branch_on_merge: true
-    auto_init: false
-    branch_protection:
+    deleteBranchOnMerge: true
+    autoInit: false
+    branchProtection:
       main:
-        required_review_count: 1
-        required_status_checks:
+        requiredReviewCount: 1
+        requiredStatusChecks:
           - build
-        require_linear_history: true
+        requireLinearHistory: true
 
   - name: main-repo
     description: Primary repository for product code and roadmap.
     visibility: public
     template: none
-    merge_strategies:
+    mergeStrategies:
       - squash
-    delete_branch_on_merge: true
-    auto_init: false
-    branch_protection:
+    deleteBranchOnMerge: true
+    autoInit: false
+    branchProtection:
       main:
-        required_review_count: 1
-        required_status_checks:
+        requiredReviewCount: 1
+        requiredStatusChecks:
           - build
-        require_linear_history: true
+        requireLinearHistory: true
 
   - name: dot-github
     description: Shared organization workflows, issue templates, and defaults.
     visibility: public
     template: docs
-    merge_strategies:
+    mergeStrategies:
       - squash
-    delete_branch_on_merge: true
-    auto_init: false
-    branch_protection:
+    deleteBranchOnMerge: true
+    autoInit: false
+    branchProtection:
       main:
-        required_review_count: 1
-        required_status_checks:
+        requiredReviewCount: 1
+        requiredStatusChecks:
           - validate
-        require_linear_history: true
+        requireLinearHistory: true
 
   - name: homebrew-tap
     description: Homebrew tap formulas for organization releases.
     visibility: public
     template: none
-    merge_strategies:
+    mergeStrategies:
       - squash
-    delete_branch_on_merge: true
-    auto_init: false
-    branch_protection:
+    deleteBranchOnMerge: true
+    autoInit: false
+    branchProtection:
       main:
-        required_review_count: 1
-        required_status_checks:
+        requiredReviewCount: 1
+        requiredStatusChecks:
           - test
-        require_linear_history: true
+        requireLinearHistory: true
 
   - name: translations
     description: Translation files for the organization.
     visibility: public
     template: none
-    merge_strategies:
+    mergeStrategies:
       - squash
-    delete_branch_on_merge: true
-    auto_init: false
-    branch_protection:
+    deleteBranchOnMerge: true
+    autoInit: false
+    branchProtection:
       main:
-        required_review_count: 1
-        required_status_checks:
+        requiredReviewCount: 1
+        requiredStatusChecks:
           - test
-        require_linear_history: true
+        requireLinearHistory: true

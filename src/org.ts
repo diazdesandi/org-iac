@@ -1,15 +1,15 @@
-import { config } from "@/loader";
-import {
-	buildRepoConfig,
-	buildRulesetBranchProtection,
-	resolveTeamAccess,
-} from "@/resolve";
 import {
 	createRepo,
 	createRulesets,
 	createTeamMemberships,
 	createTeams,
 } from "@/resources";
+import {
+	buildRepoConfig,
+	buildRulesetBranchProtection,
+	config,
+	resolveTeamAccess,
+} from "@/setup";
 
 export default async function setupOrg() {
 	const { org, repos, teams, rulesets, labels } = config;

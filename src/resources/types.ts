@@ -1,8 +1,10 @@
 import type { Repository } from "@pulumi/github";
-import type { EnvironmentConfig } from "./environment";
-import type { LabelSet } from "./label";
-import type { BranchProtectionEntry } from "./repo";
-import type { TeamResourceMap } from "./team";
+import type {
+	BranchProtectionEntry,
+	EnvironmentConfig,
+	LabelSet,
+	TeamResourceMap,
+} from "@/types";
 
 export interface BranchProtectionArgs {
 	resourceName: string;

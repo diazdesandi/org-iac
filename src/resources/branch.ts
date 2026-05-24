@@ -1,14 +1,14 @@
 import github from "@pulumi/github";
-import type { BranchProtectionArgs } from "@/types";
+import type { BranchProtectionArgs } from "./types";
 
 export function createBranchProtection(
-  branchArgs: BranchProtectionArgs,
+	branchArgs: BranchProtectionArgs,
 ): github.BranchProtection {
-  const { resourceName, pattern, repo, protection } = branchArgs;
+	const { resourceName, pattern, repo, protection } = branchArgs;
 
-  return new github.BranchProtection(
-    resourceName,
-    { ...protection, repositoryId: repo.nodeId, pattern },
-    { dependsOn: [repo] },
-  );
+	return new github.BranchProtection(
+		resourceName,
+		{ ...protection, repositoryId: repo.nodeId, pattern },
+		{ dependsOn: [repo] },
+	);
 }

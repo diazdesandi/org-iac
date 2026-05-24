@@ -43,10 +43,10 @@ export function loadConfig(): InfraConfig {
 	};
 
 	const issues = validateCrossRefs(config, labelGroups);
-	if (issues.length > 0)
-		throw new Error(
-			`Config validation failed:\n${issues.map((i) => `- ${i.path}: ${i.message}`).join("\n")}`,
-		);
+	if (issues.length > 0) {
+		const body = issues.map((i) => `- ${i.path}: ${i.message}`).join("\n");
+		throw new Error(`Config validation failed:\n${body}`);
+	}
 
 	return config;
 }

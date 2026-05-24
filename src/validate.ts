@@ -21,36 +21,26 @@ function validateTeamRefs(config: InfraConfig): ValidationIssue[] {
 	const { repos, teams } = config;
 	const teamSlugs = new Set(teams.teams.map((t) => t.slug));
 	const repoNames = new Set(repos.map((r) => r.name));
-	const issues: ValidationIssue[] = [];
 
-	for (const [repoName, access] of Object.entries(teams.repoAccess)) {
-		if (!repoNames.has(repoName))
-			issues.push(
-				issue(`teams.repoAccess.${repoName}`, `unknown repo "${repoName}"`),
-			);
-		for (const entry of access) {
-			if (!teamSlugs.has(entry.team))
-				issues.push(
-					issue(`teams.repoAccess.${repoName}`, `unknown team "${entry.team}"`),
-				);
-		}
-	}
+	return [
+		...Object.keys(teams.repoAccess)
+			.filter((name) => !repoNames.has(name))
+			.map((name) => issue(`teams.repoAccess.${name}`, `unknown repo "${name}"`)),
 
-	for (const repo of repos) {
-		for (const env of repo.environments ?? []) {
-			for (const slug of env.requiredReviewerTeamSlugs ?? []) {
-				if (!teamSlugs.has(slug))
-					issues.push(
-						issue(
-							`repos.${repo.name}.environments.${env.name}`,
-							`unknown team "${slug}"`,
-						),
-					);
-			}
-		}
-	}
+		...Object.entries(teams.repoAccess).flatMap(([repoName, access]) =>
+			access
+				.filter((e) => !teamSlugs.has(e.team))
+				.map((e) => issue(`teams.repoAccess.${repoName}`, `unknown team "${e.team}"`)),
+		),
 
-	return issues;
+		...repos.flatMap((repo) =>
+			(repo.environments ?? []).flatMap((env) =>
+				(env.requiredReviewerTeamSlugs ?? [])
+					.filter((slug) => !teamSlugs.has(slug))
+					.map((slug) => issue(`repos.${repo.name}.environments.${env.name}`, `unknown team "${slug}"`)),
+			),
+		),
+	];
 }
 
 function validateRulesetPatterns(config: InfraConfig): ValidationIssue[] {

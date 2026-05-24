@@ -17,7 +17,7 @@ repos:
         requiredReviewCount: 1
         requiredStatusChecks:
           - build
-        requireLinearHistory: true
+        requiredLinearHistory: true
 
   - name: ctl
     description: A repository for managing control logic and operations.
@@ -38,7 +38,7 @@ repos:
         requiredReviewCount: 1
         requiredStatusChecks:
           - build
-        requireLinearHistory: true
+        requiredLinearHistory: true
 
   - name: main-repo
     description: Primary repository for product code and roadmap.
@@ -53,7 +53,7 @@ repos:
         requiredReviewCount: 1
         requiredStatusChecks:
           - build
-        requireLinearHistory: true
+        requiredLinearHistory: true
 
   - name: dot-github
     description: Shared organization workflows, issue templates, and defaults.
@@ -68,7 +68,7 @@ repos:
         requiredReviewCount: 1
         requiredStatusChecks:
           - validate
-        requireLinearHistory: true
+        requiredLinearHistory: true
 
   - name: homebrew-tap
     description: Homebrew tap formulas for organization releases.
@@ -83,7 +83,7 @@ repos:
         requiredReviewCount: 1
         requiredStatusChecks:
           - test
-        requireLinearHistory: true
+        requiredLinearHistory: true
 
   - name: translations
     description: Translation files for the organization.
@@ -98,4 +98,4 @@ repos:
         requiredReviewCount: 1
         requiredStatusChecks:
           - test
-        requireLinearHistory: true
+        requiredLinearHistory: true

@@ -66,11 +66,12 @@ export const RepoConfigSchema = z
 		}
 	});
 
-export type RepoConfig = z.infer<typeof RepoConfigSchema> & {
-	teams?: TeamAccess[];
-	// Resolved branch protection — Pulumi args ready to use
-	resolvedBranchProtection?: Record<string, BranchProtectionEntry>;
-};
+export type RepoConfig = z.infer<typeof RepoConfigSchema>;
+
+export interface ResolvedRepoConfig extends RepoConfig {
+	teams: TeamAccess[];
+	resolvedBranchProtection: Record<string, BranchProtectionEntry>;
+}
 
 export type RepoVisibility = z.infer<typeof RepoVisibilitySchema>;
 export type MergeStrategy = z.infer<typeof MergeStrategySchema>;

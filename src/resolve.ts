@@ -4,6 +4,7 @@ import type {
 	LabelSet,
 	OrgConfig,
 	RepoConfig,
+	ResolvedRepoConfig,
 	RulesetConfig,
 	TeamAccess,
 	TeamResourceMap,
@@ -133,7 +134,7 @@ export interface RepoBuildContext {
 export function buildRepoConfig(
 	repo: RepoConfig,
 	ctx: RepoBuildContext,
-): RepoConfig {
+): ResolvedRepoConfig {
 	const { defaults, rulesetProtections, teamAccess, labels, organization } =
 		ctx;
 	const { features } = defaults;

@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"outDir": "bin",
+		"target": "es2020",
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"types": ["bun"],
+		"paths": {
+			"@/*": ["./src/*"]
+		},
+		"sourceMap": true,
+		"experimentalDecorators": true,
+		"pretty": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitReturns": true,
+		"forceConsistentCasingInFileNames": true
+	},
+	"include": ["**/*.ts"]
+}

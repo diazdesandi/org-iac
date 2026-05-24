@@ -1,0 +1,32 @@
+teams:
+  - slug: maintainers
+    name: Maintainers
+    privacy: closed
+    description: Core maintainers for org repositories
+    members:
+      - username: diazdesandi
+        role: maintainer
+
+  - slug: contributors
+    name: Contributors
+    privacy: closed
+    description: Day-to-day contributors with write access
+    members:
+      - username: diazdesandi
+        role: member
+
+repo_access:
+  ctl:
+    - team: maintainers
+      permission: admin
+    - team: contributors
+      permission: push
+  main-repo:
+    - team: maintainers
+      permission: admin
+  dot-github:
+    - team: maintainers
+      permission: admin
+  homebrew-tap:
+    - team: maintainers
+      permission: admin

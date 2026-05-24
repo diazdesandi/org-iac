@@ -1,0 +1,101 @@
+repos:
+  - name: org-ci
+    description: A repository for organization-wide CI/CD workflows and automation scripts.
+    visibility: public
+    topics:
+      - ci
+      - cd
+      - automation
+      - github-actions
+    template: none
+    merge_strategies:
+      - squash
+    delete_branch_on_merge: true
+    auto_init: false
+    branch_protection:
+      main:
+        required_review_count: 1
+        required_status_checks:
+          - build
+        require_linear_history: true
+
+  - name: ctl
+    description: A repository for managing control logic and operations.
+    visibility: public
+    topics:
+      - macos
+      - swift
+      - cli
+      - automation
+      - menu-bar
+    template: swift-package
+    merge_strategies:
+      - squash
+    delete_branch_on_merge: true
+    auto_init: false
+    branch_protection:
+      main:
+        required_review_count: 1
+        required_status_checks:
+          - build
+        require_linear_history: true
+
+  - name: main-repo
+    description: Primary repository for product code and roadmap.
+    visibility: public
+    template: none
+    merge_strategies:
+      - squash
+    delete_branch_on_merge: true
+    auto_init: false
+    branch_protection:
+      main:
+        required_review_count: 1
+        required_status_checks:
+          - build
+        require_linear_history: true
+
+  - name: dot-github
+    description: Shared organization workflows, issue templates, and defaults.
+    visibility: public
+    template: docs
+    merge_strategies:
+      - squash
+    delete_branch_on_merge: true
+    auto_init: false
+    branch_protection:
+      main:
+        required_review_count: 1
+        required_status_checks:
+          - validate
+        require_linear_history: true
+
+  - name: homebrew-tap
+    description: Homebrew tap formulas for organization releases.
+    visibility: public
+    template: none
+    merge_strategies:
+      - squash
+    delete_branch_on_merge: true
+    auto_init: false
+    branch_protection:
+      main:
+        required_review_count: 1
+        required_status_checks:
+          - test
+        require_linear_history: true
+
+  - name: translations
+    description: Translation files for the organization.
+    visibility: public
+    template: none
+    merge_strategies:
+      - squash
+    delete_branch_on_merge: true
+    auto_init: false
+    branch_protection:
+      main:
+        required_review_count: 1
+        required_status_checks:
+          - test
+        require_linear_history: true

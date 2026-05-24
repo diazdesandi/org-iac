@@ -1,0 +1,122 @@
+# ─── Default / General Issues ─────────────────────────────────────────────
+defaults:
+  bug:
+    color: "d73a4a"
+    description: "Something isn't working"
+  enhancement:
+    color: "1d76db"
+    description: "Iteration, improvement, or optimization of an existing feature"
+  feature:
+    color: "0052cc"
+    description: "New capability that did not exist before"
+  docs:
+    color: "0075ca"
+    description: "Improvements or additions to documentation"
+  duplicate:
+    color: "cfd3d7"
+    description: "This issue or pull request already exists"
+  invalid:
+    color: "cfd3d7"
+    description: "This doesn't seem right"
+  question:
+    color: "6009a1"
+    description: "Further information is requested"
+  wontfix:
+    color: "ffffff"
+    description: "This will not be worked on"
+  regression:
+    color: "C0392B"
+    description: "Something that used to work and broke"
+  upstream:
+    color: "132423"
+    description: "Issue exists in the app that provides the menu bar icon."
+  stale:
+    color: "212328"
+    description: "Issues or PRs that have seen no progress"
+
+# ─── Priority Levels ──────────────────────────────────────────────────────────
+priorities:
+  P0:
+    color: "B60205"
+    description: "App crashes or is completely unusable; no workaround"
+  P1:
+    color: "D93F0B"
+    description: "Core feature is broken for most users; workaround is painful or partial"
+  P2:
+    color: "FBCA04"
+    description: "Noticeable bug with a usable workaround"
+  P3:
+    color: "0E8A16"
+    description: "Minor issue that doesn't block usage; important but not urgent"
+  P4:
+    color: "1D76DB"
+    description: "Cosmetic or low-impact issue unrelated to core functionality"
+  P5:
+    color: "C2E0C6"
+    description: "Acknowledged, but not planned; open for discussion"
+
+# ─── Platform Support ─────────────────────────────────────────────────────────
+platforms:
+  macos-14:
+    color: "1A6B8A"
+    description: "Issue specific to macOS 14 (Sonoma)"
+  macos-15:
+    color: "1A6B8A"
+    description: "Issue specific to macOS 15 (Sequoia)"
+  macos-26:
+    color: "1D6FA4"
+    description: "Issue specific to macOS 26 (Tahoe)"
+  unsupported-version:
+    color: "ffffff"
+    description: "Unsupported OS or app version."
+
+# ─── Development / Workflow ───────────────────────────────────────────────────
+development:
+  performance:
+    color: "ba4021"
+    description: "Performance improvements"
+  refactor:
+    color: "c2e702"
+    description: "Code restructuring without behavior change"
+  test:
+    color: "9ad857"
+    description: "Test additions or updates"
+  chore:
+    color: "BDC3C7"
+    description: "Housekeeping, non-user-facing maintenance"
+  ci:
+    color: "59f62e"
+    description: "Related to continuous integration workflows or runners."
+  cd:
+    color: "d89bd2"
+    description: "Related to deployments or release automation"
+  breaking-change:
+    color: "E74C3C"
+    description: "PR introduces a breaking change"
+
+# ─── Communication / Triage ───────────────────────────────────────────────────
+triage:
+  "good first issue":
+    color: "6009a1"
+    description: "Good for newcomers"
+  "help wanted":
+    color: "6009a1"
+    description: "Extra attention is needed"
+  needs-info:
+    color: "D4AC0D"
+    description: "Waiting on more details from the reporter"
+  blocked:
+    color: "7D3C98"
+    description: "Waiting on upstream, Apple, or another dependency"
+  "keep open":
+    color: "101d62"
+    description: "Announcements, issues being worked on, etc. Anything important to keep alive."
+
+# ─── Internationalization & Automation ────────────────────────────────────────
+other:
+  translation:
+    color: "1d76db"
+    description: "Internationalization (multi-language support)"
+  agentic-workflows:
+    color: "ededed"
+    description: "Automation workflows using coding agents"

@@ -1,0 +1,11 @@
+name: org-config
+description: A minimal GitHub TypeScript Pulumi program.
+runtime:
+  name: nodejs
+  options:
+    packagemanager: bun
+    binary: bun
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: github-typescript

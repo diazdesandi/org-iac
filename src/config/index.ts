@@ -1,3 +1,3 @@
 export * from "./loader";
-export * from "./mapper";
+export * from "./resolve";
 export * from "./validate";

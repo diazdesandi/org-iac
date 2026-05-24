@@ -1,1 +1,3 @@
-export * from "@/stacks/prod";
+import setupOrg from "@/org";
+
+await setupOrg();

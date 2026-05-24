@@ -16,7 +16,7 @@ export default async function setupOrg() {
 	const { defaults, organization } = org;
 
 	const teamResources = createTeams(teams);
-	createTeamMemberships(teams.teams, teamResources);
+	createTeamMemberships(teams, teamResources);
 	createRulesets(rulesets);
 
 	const rulesetProtections = buildRulesetBranchProtection(

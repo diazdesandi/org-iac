@@ -1,4 +1,5 @@
 import type { InfraConfig, LabelGroups } from "@/types";
+import { normalizeBranchPattern } from "./utils";
 
 export interface ValidationIssue {
 	path: string;
@@ -9,14 +10,6 @@ function issue(path: string, message: string): ValidationIssue {
 	return { path, message };
 }
 
-function normalizeBranchPattern(
-	pattern: string,
-	defaultBranch: string,
-): string {
-	if (pattern === "~DEFAULT_BRANCH") return defaultBranch;
-	return pattern.replace(/^refs\/heads\//, "");
-}
-
 function validateTeamRefs(config: InfraConfig): ValidationIssue[] {
 	const { repos, teams } = config;
 	const teamSlugs = new Set(teams.teams.map((t) => t.slug));
@@ -25,19 +18,28 @@ function validateTeamRefs(config: InfraConfig): ValidationIssue[] {
 	return [
 		...Object.keys(teams.repoAccess)
 			.filter((name) => !repoNames.has(name))
-			.map((name) => issue(`teams.repoAccess.${name}`, `unknown repo "${name}"`)),
+			.map((name) =>
+				issue(`teams.repoAccess.${name}`, `unknown repo "${name}"`),
+			),
 
 		...Object.entries(teams.repoAccess).flatMap(([repoName, access]) =>
 			access
 				.filter((e) => !teamSlugs.has(e.team))
-				.map((e) => issue(`teams.repoAccess.${repoName}`, `unknown team "${e.team}"`)),
+				.map((e) =>
+					issue(`teams.repoAccess.${repoName}`, `unknown team "${e.team}"`),
+				),
 		),
 
 		...repos.flatMap((repo) =>
 			(repo.environments ?? []).flatMap((env) =>
 				(env.requiredReviewerTeamSlugs ?? [])
 					.filter((slug) => !teamSlugs.has(slug))
-					.map((slug) => issue(`repos.${repo.name}.environments.${env.name}`, `unknown team "${slug}"`)),
+					.map((slug) =>
+						issue(
+							`repos.${repo.name}.environments.${env.name}`,
+							`unknown team "${slug}"`,
+						),
+					),
 			),
 		),
 	];

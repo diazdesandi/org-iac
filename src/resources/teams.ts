@@ -1,6 +1,6 @@
 import github from "@pulumi/github";
 
-import type { TeamConfig, TeamResourceMap, TeamsConfig } from "@/types";
+import type { TeamResourceMap, TeamsConfig } from "@/types";
 
 export function createTeams(config: TeamsConfig): TeamResourceMap {
 	return Object.fromEntries(
@@ -19,10 +19,10 @@ export function createTeams(config: TeamsConfig): TeamResourceMap {
 }
 
 export function createTeamMemberships(
-	teams: TeamConfig[],
+	config: TeamsConfig,
 	teamResources: TeamResourceMap,
 ): github.TeamMembership[] {
-	return teams.flatMap((team) => {
+	return config.teams.flatMap((team) => {
 		const { slug, members } = team;
 		const teamMembers = members ?? [];
 		return teamMembers.map((member) => {

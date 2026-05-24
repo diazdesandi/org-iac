@@ -1,4 +1,3 @@
-import type github from "@pulumi/github";
 import type { BranchProtectionArgs } from "@pulumi/github/branchProtection";
 import { z } from "zod";
 import { EnvironmentConfigSchema } from "./environment";
@@ -39,7 +38,6 @@ export const RepoConfigSchema = z
 		visibility: RepoVisibilitySchema.optional(),
 		topics: z.array(z.string()).optional(),
 		homepage: z.string().optional(),
-		template: z.string().optional(),
 		mergeStrategies: z.array(MergeStrategySchema).optional(),
 		deleteBranchOnMerge: z.boolean().optional(),
 		autoInit: z.boolean().optional(),
@@ -57,7 +55,7 @@ export const RepoConfigSchema = z
 		for (const env of data.environments ?? []) {
 			if (seen.has(env.name)) {
 				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
+					code: "custom",
 					path: ["environments"],
 					message: `duplicate environment name "${env.name}"`,
 				});
@@ -75,9 +73,3 @@ export interface ResolvedRepoConfig extends RepoConfig {
 
 export type RepoVisibility = z.infer<typeof RepoVisibilitySchema>;
 export type MergeStrategy = z.infer<typeof MergeStrategySchema>;
-
-export interface RepoResult {
-	repo: github.Repository;
-	branchProtections: github.BranchProtection[];
-	environments: github.RepositoryEnvironment[];
-}

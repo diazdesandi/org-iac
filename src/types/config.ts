@@ -20,7 +20,7 @@ function refineDuplicates<T>(
 ) {
 	return (data: T, ctx: z.RefinementCtx) => {
 		for (const dup of findDuplicates(getValues(data))) {
-			ctx.addIssue({ code: z.ZodIssueCode.custom, path: [path], message: message(dup) });
+			ctx.addIssue({ code: "custom", path: [path], message: message(dup) });
 		}
 	};
 }

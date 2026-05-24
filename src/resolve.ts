@@ -1,113 +1,165 @@
 import type {
-  BranchProtectionConfig,
-  OrgConfig,
-  RepoConfig,
-  RulesetConfig,
-  TeamAccess,
-  TeamResourceMap,
-  TeamsConfig,
-  LabelSet,
+	BranchProtectionConfig,
+	BranchProtectionEntry,
+	LabelSet,
+	OrgConfig,
+	RepoConfig,
+	RulesetConfig,
+	TeamAccess,
+	TeamResourceMap,
+	TeamsConfig,
 } from "@/types";
 
 // ── Branch protection ────────────────────────────────────────────────────────
 
-function normalizeBranchPattern(
-  pattern: string,
-  defaultBranch: string,
-): string {
-  if (pattern === "~DEFAULT_BRANCH") return defaultBranch;
-  return pattern.replace(/^refs\/heads\//, "");
+function normalizeActors(
+	actors: string[] | undefined,
+	org: string,
+): string[] | undefined {
+	if (!actors?.length) return undefined;
+	return actors.map((a) =>
+		a.startsWith("/") || a.includes("/") ? a : `${org}/${a}`,
+	);
 }
 
-function branchProtectionFromRuleset(
-  ruleset: RulesetConfig,
-): BranchProtectionConfig {
-  const {
-    pull_request,
-    required_status_checks,
-    required_linear_history,
-    deletion,
-    non_fast_forward,
-  } = ruleset.rules;
+function toBranchProtectionEntry(
+	config: BranchProtectionConfig,
+	organization: string,
+): BranchProtectionEntry {
+	const dismissalRestrictions = normalizeActors(
+		config.restrictDismissalsToTeams,
+		organization,
+	);
 
-  return {
-    required_review_count: pull_request?.required_approving_review_count,
-    dismiss_stale_reviews: pull_request?.dismiss_stale_reviews_on_push,
-    require_code_owner_review: pull_request?.require_code_owner_review,
-    required_status_checks: required_status_checks?.checks?.map(
-      (c) => c.context,
-    ),
-    strict_status_checks: required_status_checks?.strict,
-    require_linear_history: required_linear_history,
-    allow_deletions: deletion,
-    allow_force_pushes: non_fast_forward,
-  };
+	return {
+		enforceAdmins: true,
+		allowsDeletions: config.allowsDeletions,
+		allowsForcePushes: config.allowsForcePushes,
+		requireSignedCommits: config.requireSignedCommits,
+		requiredLinearHistory: config.requiredLinearHistory,
+		requireConversationResolution: config.requireConversationResolution,
+		requiredStatusChecks: config.requiredStatusChecks?.length
+			? [
+					{
+						contexts: config.requiredStatusChecks,
+						strict: config.strictStatusChecks,
+					},
+				]
+			: undefined,
+		requiredPullRequestReviews: [
+			{
+				requiredApprovingReviewCount: config.requiredReviewCount,
+				dismissStaleReviews: config.dismissStaleReviews,
+				requireCodeOwnerReviews: config.requireCodeOwnerReviews,
+				...(dismissalRestrictions ? { dismissalRestrictions } : {}),
+			},
+		],
+	};
+}
+
+export function normalizeBranchPattern(
+	pattern: string,
+	defaultBranch: string,
+): string {
+	if (pattern === "~DEFAULT_BRANCH") return defaultBranch;
+	return pattern.replace(/^refs\/heads\//, "");
 }
 
 export function buildRulesetBranchProtection(
-  rulesets: RulesetConfig[],
-  defaultBranch: string,
-): Record<string, BranchProtectionConfig> {
-  return rulesets
-    .filter((r) => r.target === "branch" && r.enforcement !== "disabled")
-    .flatMap((r) =>
-      r.conditions.include.map((pattern) => ({
-        pattern: normalizeBranchPattern(pattern, defaultBranch),
-        config: branchProtectionFromRuleset(r),
-      })),
-    )
-    .reduce<Record<string, BranchProtectionConfig>>(
-      (acc, { pattern, config }) => {
-        acc[pattern] = { ...acc[pattern], ...config };
-        return acc;
-      },
-      {},
-    );
+	rulesets: RulesetConfig[],
+	defaultBranch: string,
+	organization: string,
+): Record<string, BranchProtectionEntry> {
+	return rulesets
+		.filter((r) => r.target === "branch" && r.enforcement !== "disabled")
+		.flatMap((r) =>
+			r.conditions.refName.includes.map((pattern) => ({
+				pattern: normalizeBranchPattern(pattern, defaultBranch),
+				entry: toBranchProtectionEntry(
+					{
+						requiredReviewCount:
+							r.rules.pullRequest?.requiredApprovingReviewCount,
+						dismissStaleReviews: r.rules.pullRequest?.dismissStaleReviewsOnPush,
+						requireCodeOwnerReviews:
+							r.rules.pullRequest?.requireCodeOwnerReview,
+						requiredStatusChecks:
+							r.rules.requiredStatusChecks?.requiredChecks?.map(
+								(c) => c.context,
+							),
+						strictStatusChecks:
+							r.rules.requiredStatusChecks?.strictRequiredStatusChecksPolicy,
+						requiredLinearHistory: r.rules.requiredLinearHistory,
+						allowsDeletions: r.rules.deletion,
+						allowsForcePushes: r.rules.nonFastForward,
+					},
+					organization,
+				),
+			})),
+		)
+		.reduce<Record<string, BranchProtectionEntry>>(
+			(acc, { pattern, entry }) => {
+				acc[pattern] = { ...acc[pattern], ...entry };
+				return acc;
+			},
+			{},
+		);
 }
 
-// ── Team access ──────────────────────────────────────────────────────────────
+// ── Team access ───────────────────────────────────────────────────────────────
 
 export function resolveTeamAccess(
-  repoName: string,
-  repoAccess: TeamsConfig["repo_access"],
-  teamResources: TeamResourceMap,
+	repoName: string,
+	repoAccess: TeamsConfig["repoAccess"],
+	teamResources: TeamResourceMap,
 ): TeamAccess[] {
-  return (repoAccess[repoName] ?? []).map(({ team, permission }) => {
-    const resource = teamResources[team];
-    if (!resource)
-      throw new Error(`Team "${team}" in repo_access["${repoName}"] not found`);
-    return { slug: team, teamId: resource.id, permission };
-  });
+	return (repoAccess[repoName] ?? []).map(({ team, permission }) => {
+		const resource = teamResources[team];
+		if (!resource)
+			throw new Error(`Team "${team}" in repoAccess["${repoName}"] not found`);
+		return { slug: team, teamId: resource.id, permission };
+	});
 }
 
-// ── Repo config ──────────────────────────────────────────────────────────────
+// ── Repo config ───────────────────────────────────────────────────────────────
 
 export interface RepoBuildContext {
-  defaults: OrgConfig["defaults"];
-  branchProtections: Record<string, BranchProtectionConfig>;
-  teamAccess: TeamAccess[];
-  labels: LabelSet;
+	defaults: OrgConfig["defaults"];
+	rulesetProtections: Record<string, BranchProtectionEntry>;
+	teamAccess: TeamAccess[];
+	labels: LabelSet;
+	organization: string;
 }
 
 export function buildRepoConfig(
-  repo: RepoConfig,
-  ctx: RepoBuildContext,
+	repo: RepoConfig,
+	ctx: RepoBuildContext,
 ): RepoConfig {
-  const { defaults, branchProtections, teamAccess, labels } = ctx;
-  const { features } = defaults;
+	const { defaults, rulesetProtections, teamAccess, labels, organization } =
+		ctx;
+	const { features } = defaults;
 
-  return {
-    ...repo,
-    visibility: repo.visibility ?? defaults.visibility,
-    merge_strategies: repo.merge_strategies ?? defaults.merge_strategies,
-    delete_branch_on_merge:
-      repo.delete_branch_on_merge ?? defaults.delete_branch_on_merge,
-    has_issues: repo.has_issues ?? features.issues,
-    has_wiki: repo.has_wiki ?? features.wiki,
-    has_projects: repo.has_projects ?? features.projects,
-    has_discussions: repo.has_discussions ?? features.discussions,
-    branch_protection: { ...branchProtections, ...repo.branch_protection },
-    labels: { ...labels, ...repo.labels },
-    teams: teamAccess,
-  };
+	const repoBranchProtection = Object.fromEntries(
+		Object.entries(repo.branchProtection ?? {}).map(([pattern, config]) => [
+			pattern,
+			toBranchProtectionEntry(config, organization),
+		]),
+	);
+
+	return {
+		...repo,
+		visibility: repo.visibility ?? defaults.visibility,
+		mergeStrategies: repo.mergeStrategies ?? defaults.mergeStrategies,
+		deleteBranchOnMerge:
+			repo.deleteBranchOnMerge ?? defaults.deleteBranchOnMerge,
+		hasIssues: repo.hasIssues ?? features.issues,
+		hasWiki: repo.hasWiki ?? features.wiki,
+		hasProjects: repo.hasProjects ?? features.projects,
+		hasDiscussions: repo.hasDiscussions ?? features.discussions,
+		labels: { ...labels, ...repo.labels },
+		teams: teamAccess,
+		resolvedBranchProtection: {
+			...rulesetProtections,
+			...repoBranchProtection,
+		},
+	};
 }

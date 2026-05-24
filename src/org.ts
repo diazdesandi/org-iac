@@ -1,40 +1,38 @@
+import { config } from "@/loader";
 import {
-  buildRulesetBranchProtection,
-  config,
-  resolveTeamAccess,
-} from "@/core";
-import { createTeams, createTeamMemberships, createRepo } from "@/resources";
-import { BranchProtectionConfig, TeamResourceMap } from "./types";
+	buildRepoConfig,
+	buildRulesetBranchProtection,
+	resolveTeamAccess,
+} from "@/resolve";
+import {
+	createRepo,
+	createRulesets,
+	createTeamMemberships,
+	createTeams,
+} from "@/resources";
 
-// TODO: Refactor to use a single branch protection map
-interface BranchProtection {
-  [pattern: string]: BranchProtectionConfig;
+export default async function setupOrg() {
+	const { org, repos, teams, rulesets, labels } = config;
+	const { defaults, organization } = org;
+
+	const teamResources = createTeams(teams);
+	createTeamMemberships(teams.teams, teamResources);
+	createRulesets(rulesets);
+
+	const rulesetProtections = buildRulesetBranchProtection(
+		rulesets,
+		defaults.defaultBranch,
+		organization,
+	);
+
+	for (const repo of repos) {
+		const resolved = buildRepoConfig(repo, {
+			defaults,
+			rulesetProtections,
+			teamAccess: resolveTeamAccess(repo.name, teams.repoAccess, teamResources),
+			labels,
+			organization,
+		});
+		createRepo(resolved, teamResources);
+	}
 }
-
-const setupOrg: () => Promise<void> = async (): Promise<void> => {
-  const { org, repos, teams, rulesets, labels } = config;
-
-  const teamResources: TeamResourceMap = createTeams(teams);
-
-  // TODO: Refactor to not use teams.teams, use only teams
-  createTeamMemberships(teams.teams, teamResources);
-
-  const branchProtections: BranchProtection = buildRulesetBranchProtection(
-    rulesets,
-    org.defaults.default_branch,
-  );
-
-  for (const repo of repos) {
-    createRepo(repo, {
-      defaults: org.defaults,
-      branchProtections,
-      teamAccess: resolveTeamAccess(
-        repo.name,
-        teams.repo_access,
-        teamResources,
-      ),
-    });
-  }
-};
-
-export default setupOrg;

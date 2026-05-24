@@ -3,8 +3,9 @@ rulesets:
     target: branch
     enforcement: active
     conditions:
-      include:
-        - "~DEFAULT_BRANCH"
+      refName:
+        includes:
+          - "~DEFAULT_BRANCH"
     rules:
       requiredLinearHistory: true
       deletion: false
@@ -14,16 +15,17 @@ rulesets:
         dismissStaleReviewsOnPush: true
         requireCodeOwnerReview: false
       requiredStatusChecks:
-        strict: true
-        checks:
+        requiredChecks:
           - context: build
+        strictRequiredStatusChecksPolicy: true
 
   - id: release-branch-protection
     target: branch
     enforcement: active
     conditions:
-      include:
-        - "refs/heads/release/*"
+      refName:
+        includes:
+          - "refs/heads/release/*"
     rules:
       requiredLinearHistory: true
       deletion: false

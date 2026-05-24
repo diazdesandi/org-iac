@@ -21,18 +21,15 @@ export function createTeams(config: TeamsConfig): TeamResourceMap {
 export function createTeamMemberships(
 	config: TeamsConfig,
 	teamResources: TeamResourceMap,
-): github.TeamMembership[] {
-	return config.teams.flatMap((team) => {
+): void {
+	for (const team of config.teams) {
 		const { slug, members } = team;
-		const teamMembers = members ?? [];
-		return teamMembers.map((member) => {
-			const { username, role } = member;
-			const membershipName = `${slug}-${username}`;
-			return new github.TeamMembership(membershipName, {
+		for (const { username, role } of members ?? []) {
+			new github.TeamMembership(`${slug}-${username}`, {
 				teamId: teamResources[slug].id,
 				username,
 				role,
 			});
-		});
-	});
+		}
+	}
 }

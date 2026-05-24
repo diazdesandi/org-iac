@@ -17,15 +17,19 @@ export function createEnvironments(args: EnvArgs): RepositoryEnvironment[] {
 			return pulumi.output(team.id).apply((id) => Number.parseInt(id, 10));
 		});
 
+		let branchPolicy: { protectedBranches: boolean; customBranchPolicies: boolean } | undefined;
+		if (deploymentBranchPolicy === "protected") {
+			branchPolicy = { protectedBranches: true, customBranchPolicies: false };
+		} else if (deploymentBranchPolicy === "unprotected") {
+			branchPolicy = { protectedBranches: false, customBranchPolicies: false };
+		}
+
 		return new github.RepositoryEnvironment(
 			`${resourcePrefix}-env-${name}`,
 			{
 				repository: repo.name,
 				environment: name,
-				deploymentBranchPolicy:
-					deploymentBranchPolicy === "protected"
-						? { protectedBranches: true, customBranchPolicies: false }
-						: undefined,
+				deploymentBranchPolicy: branchPolicy,
 				reviewers:
 					reviewerTeams.length > 0 ? [{ teams: reviewerTeams }] : undefined,
 			},

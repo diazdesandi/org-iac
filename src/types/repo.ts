@@ -21,6 +21,7 @@ const BranchProtectionSchema = z.object({
 	requireConversationResolution: z.boolean().optional(),
 	allowsForcePushes: z.boolean().optional(),
 	allowsDeletions: z.boolean().optional(),
+	enforceAdmins: z.boolean().optional(),
 });
 
 export type BranchProtectionConfig = z.infer<typeof BranchProtectionSchema>;
@@ -66,7 +67,24 @@ export const RepoConfigSchema = z
 
 export type RepoConfig = z.infer<typeof RepoConfigSchema>;
 
-export interface ResolvedRepoConfig extends RepoConfig {
+export interface ResolvedRepoConfig
+	extends Omit<
+		RepoConfig,
+		| "visibility"
+		| "mergeStrategies"
+		| "deleteBranchOnMerge"
+		| "hasIssues"
+		| "hasWiki"
+		| "hasProjects"
+		| "hasDiscussions"
+	> {
+	visibility: RepoVisibility;
+	mergeStrategies: MergeStrategy[];
+	deleteBranchOnMerge: boolean;
+	hasIssues: boolean;
+	hasWiki: boolean;
+	hasProjects: boolean;
+	hasDiscussions: boolean;
 	teams: TeamAccess[];
 	resolvedBranchProtection: Record<string, BranchProtectionEntry>;
 }

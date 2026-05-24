@@ -28,7 +28,7 @@ export function createRepo(
 		labels,
 	} = config;
 
-	const allowSquashMerge = mergeStrategies?.includes("squash") ?? true;
+	const allowSquashMerge = mergeStrategies.includes("squash");
 
 	const repo = new github.Repository(name, {
 		name,
@@ -43,8 +43,8 @@ export function createRepo(
 		archived,
 		topics: topics ?? [],
 		homepageUrl: homepage,
-		allowMergeCommit: mergeStrategies?.includes("merge") ?? false,
-		allowRebaseMerge: mergeStrategies?.includes("rebase") ?? false,
+		allowMergeCommit: mergeStrategies.includes("merge"),
+		allowRebaseMerge: mergeStrategies.includes("rebase"),
 		allowSquashMerge,
 		...(allowSquashMerge && {
 			squashMergeCommitTitle: "PR_TITLE",
@@ -60,17 +60,16 @@ export function createRepo(
 		);
 	}
 
-	const _branchProtections = Object.entries(resolvedBranchProtection).map(
-		([pattern, protection]) =>
-			createBranchProtection({
-				resourceName: `${name}-bp-${pattern.replace(/\//g, "-")}`,
-				pattern,
-				protection,
-				repo,
-			}),
-	);
+	Object.entries(resolvedBranchProtection).forEach(([pattern, protection]) => {
+		createBranchProtection({
+			resourceName: `${name}-bp-${pattern.replace(/\//g, "__")}`,
+			pattern,
+			protection,
+			repo,
+		});
+	});
 
-	const _environmentResources = createEnvironments({
+	createEnvironments({
 		resourcePrefix: name,
 		environments: environments ?? [],
 		repo,

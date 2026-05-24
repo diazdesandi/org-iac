@@ -24,7 +24,7 @@ function parse<T>(schema: ZodType<T>, data: unknown, file: string): T {
 }
 
 function flattenLabels(groups: LabelGroups): LabelSet {
-	return Object.values(groups).reduce<LabelSet>((acc, g) => Object.assign(acc, g), {});
+	return Object.assign({}, ...Object.values(groups));
 }
 
 export function loadConfig(): InfraConfig {

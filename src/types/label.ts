@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const LabelDefinitionSchema = z.object({
-	color: z.string(),
+	color: z.string().regex(/^[0-9a-fA-F]{6}$/, "must be a 6-digit hex color (without #)"),
 	description: z.string().optional(),
 });
 

@@ -34,7 +34,7 @@ function toBranchProtectionEntry(
 	);
 
 	return {
-		enforceAdmins: true,
+		enforceAdmins: config.enforceAdmins ?? true,
 		allowsDeletions: config.allowsDeletions,
 		allowsForcePushes: config.allowsForcePushes,
 		requireSignedCommits: config.requireSignedCommits,
@@ -83,8 +83,10 @@ export function buildRulesetBranchProtection(
 						strictStatusChecks:
 							r.rules.requiredStatusChecks?.strictRequiredStatusChecksPolicy,
 						requiredLinearHistory: r.rules.requiredLinearHistory,
-						allowsDeletions: r.rules.deletion,
-						allowsForcePushes: r.rules.nonFastForward,
+						// ruleset `deletion`/`nonFastForward` are restriction rules (true = blocked),
+						// while branch protection `allowsDeletions`/`allowsForcePushes` are the inverse
+						allowsDeletions: r.rules.deletion === undefined ? undefined : !r.rules.deletion,
+						allowsForcePushes: r.rules.nonFastForward === undefined ? undefined : !r.rules.nonFastForward,
 					},
 					organization,
 				),

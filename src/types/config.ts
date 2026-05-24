@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { LabelSetSchema } from "./label";
-import { MergeStrategySchema, RepoConfigSchema, RepoVisibilitySchema } from "./repo";
-import { TeamsConfigSchema } from "./team";
+import {
+	MergeStrategySchema,
+	RepoConfigSchema,
+	RepoVisibilitySchema,
+} from "./repo";
 
 function findDuplicates(values: string[]): string[] {
 	const seen = new Set<string>();
@@ -104,15 +107,6 @@ export const RulesetsFileSchema = z
 		),
 	);
 
-export const InfraConfigSchema = z.object({
-	org: OrgConfigSchema,
-	repos: z.array(RepoConfigSchema),
-	teams: TeamsConfigSchema,
-	rulesets: z.array(RulesetConfigSchema),
-	labels: LabelSetSchema,
-});
-
 export type OrgConfig = z.infer<typeof OrgConfigSchema>;
 export type LabelGroups = z.infer<typeof LabelGroupsSchema>;
 export type RulesetConfig = z.infer<typeof RulesetConfigSchema>;
-export type InfraConfig = z.infer<typeof InfraConfigSchema>;

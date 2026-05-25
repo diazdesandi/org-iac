@@ -1,3 +1,4 @@
+import { mapValues, toMerged } from "es-toolkit";
 import type {
 	BranchProtectionConfig,
 	BranchProtectionEntry,
@@ -10,19 +11,9 @@ import type {
 	TeamResourceMap,
 	TeamsConfig,
 } from "@/types";
-import { normalizeBranchPattern } from "./utils";
+import { normalizeActors, normalizeBranchPattern } from "./utils";
 
 // ── Branch protection ────────────────────────────────────────────────────────
-
-function normalizeActors(
-	actors: string[] | undefined,
-	org: string,
-): string[] | undefined {
-	if (!actors?.length) return undefined;
-	return actors.map((a) =>
-		a.startsWith("/") || a.includes("/") ? a : `${org}/${a}`,
-	);
-}
 
 function toBranchProtectionEntry(
 	config: BranchProtectionConfig,
@@ -32,6 +23,12 @@ function toBranchProtectionEntry(
 		config.restrictDismissalsToTeams,
 		organization,
 	);
+
+	const hasPrReviews =
+		config.requiredReviewCount !== undefined ||
+		config.dismissStaleReviews !== undefined ||
+		config.requireCodeOwnerReviews !== undefined ||
+		dismissalRestrictions !== undefined;
 
 	return {
 		enforceAdmins: config.enforceAdmins ?? true,
@@ -48,14 +45,16 @@ function toBranchProtectionEntry(
 					},
 				]
 			: undefined,
-		requiredPullRequestReviews: [
-			{
-				requiredApprovingReviewCount: config.requiredReviewCount,
-				dismissStaleReviews: config.dismissStaleReviews,
-				requireCodeOwnerReviews: config.requireCodeOwnerReviews,
-				...(dismissalRestrictions ? { dismissalRestrictions } : {}),
-			},
-		],
+		requiredPullRequestReviews: hasPrReviews
+			? [
+					{
+						requiredApprovingReviewCount: config.requiredReviewCount,
+						dismissStaleReviews: config.dismissStaleReviews,
+						requireCodeOwnerReviews: config.requireCodeOwnerReviews,
+						...(dismissalRestrictions ? { dismissalRestrictions } : {}),
+					},
+				]
+			: undefined,
 	};
 }
 
@@ -83,10 +82,13 @@ export function buildRulesetBranchProtection(
 						strictStatusChecks:
 							r.rules.requiredStatusChecks?.strictRequiredStatusChecksPolicy,
 						requiredLinearHistory: r.rules.requiredLinearHistory,
-						// ruleset `deletion`/`nonFastForward` are restriction rules (true = blocked),
-						// while branch protection `allowsDeletions`/`allowsForcePushes` are the inverse
-						allowsDeletions: r.rules.deletion === undefined ? undefined : !r.rules.deletion,
-						allowsForcePushes: r.rules.nonFastForward === undefined ? undefined : !r.rules.nonFastForward,
+
+						allowsDeletions:
+							r.rules.deletion === undefined ? undefined : !r.rules.deletion,
+						allowsForcePushes:
+							r.rules.nonFastForward === undefined
+								? undefined
+								: !r.rules.nonFastForward,
 					},
 					organization,
 				),
@@ -134,11 +136,9 @@ export function buildRepoConfig(
 		ctx;
 	const { features } = defaults;
 
-	const repoBranchProtection = Object.fromEntries(
-		Object.entries(repo.branchProtection ?? {}).map(([pattern, config]) => [
-			pattern,
-			toBranchProtectionEntry(config, organization),
-		]),
+	const repoBranchProtection = mapValues(
+		repo.branchProtection ?? {},
+		(config) => toBranchProtectionEntry(config, organization),
 	);
 
 	return {
@@ -153,9 +153,9 @@ export function buildRepoConfig(
 		hasDiscussions: repo.hasDiscussions ?? features.discussions,
 		labels: { ...labels, ...repo.labels },
 		teams: teamAccess,
-		resolvedBranchProtection: {
-			...rulesetProtections,
-			...repoBranchProtection,
-		},
+		resolvedBranchProtection: toMerged(
+			rulesetProtections,
+			repoBranchProtection,
+		),
 	};
 }

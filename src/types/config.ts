@@ -1,3 +1,4 @@
+import { groupBy } from "es-toolkit";
 import { z } from "zod";
 import { LabelSetSchema } from "./label";
 import {
@@ -7,13 +8,8 @@ import {
 } from "./repo";
 
 function findDuplicates(values: string[]): string[] {
-	const seen = new Set<string>();
-	const dupes = new Set<string>();
-	for (const v of values) {
-		if (seen.has(v)) dupes.add(v);
-		else seen.add(v);
-	}
-	return [...dupes];
+	const groups = groupBy(values, (v) => v);
+	return Object.keys(groups).filter((k) => groups[k].length > 1);
 }
 
 function refineDuplicates<T>(
@@ -107,6 +103,30 @@ export const RulesetsFileSchema = z
 		),
 	);
 
+export const InfraConfigSchema = z.object({
+	org: OrgConfigSchema,
+	labelGroups: LabelGroupsSchema,
+	repos: ReposFileSchema.shape.repos,
+	rulesets: RulesetsFileSchema.shape.rulesets,
+	teams: z.object({
+		teams: z.array(
+			z.object({
+				slug: z.string(),
+				name: z.string().optional(),
+			}),
+		),
+		repoAccess: z.record(
+			z.array(
+				z.object({
+					team: z.string(),
+					level: z.enum(["read", "write", "admin"]),
+				}),
+			),
+		),
+	}),
+});
+
+export type InfraConfig = z.infer<typeof InfraConfigSchema>;
 export type OrgConfig = z.infer<typeof OrgConfigSchema>;
 export type LabelGroups = z.infer<typeof LabelGroupsSchema>;
 export type RulesetConfig = z.infer<typeof RulesetConfigSchema>;

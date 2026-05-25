@@ -1,3 +1,4 @@
+import { uniq } from "es-toolkit";
 import type { InfraConfig, LabelGroups } from "@/types";
 import { normalizeBranchPattern } from "./utils";
 
@@ -63,7 +64,7 @@ function validateRulesetPatterns(config: InfraConfig): ValidationIssue[] {
 	}
 
 	for (const [pattern, owners] of patternOwners) {
-		const unique = [...new Set(owners)];
+		const unique = uniq(owners);
 		if (unique.length > 1)
 			issues.push(
 				issue(

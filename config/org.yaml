@@ -7,6 +7,8 @@ defaults:
   deleteBranchOnMerge: true
   mergeStrategies:
     - squash
+  squashMergeCommitMessage: PR_TITLE
+  squashMergeCommitMessageFormat: COMMIT_MESSAGE
   features:
     issues: true
     wiki: false

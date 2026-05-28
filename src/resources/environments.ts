@@ -3,7 +3,10 @@ import github from "@pulumi/github";
 import pulumi from "@pulumi/pulumi";
 import type { EnvArgs } from "./types";
 
-export function createEnvironments(args: EnvArgs): RepositoryEnvironment[] {
+export function createEnvironments(
+	args: EnvArgs,
+	opts?: pulumi.ResourceOptions,
+): RepositoryEnvironment[] {
 	const { resourcePrefix, environments, repo, teamResources } = args;
 	return environments.map((env) => {
 		const { name, requiredReviewerTeamSlugs, deploymentBranchPolicy } = env;
@@ -31,7 +34,7 @@ export function createEnvironments(args: EnvArgs): RepositoryEnvironment[] {
 				reviewers:
 					reviewerTeams.length > 0 ? [{ teams: reviewerTeams }] : undefined,
 			},
-			{ dependsOn: [repo] },
+			{ dependsOn: [repo], ...opts },
 		);
 	});
 }

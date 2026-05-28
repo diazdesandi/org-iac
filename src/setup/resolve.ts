@@ -152,5 +152,7 @@ export function buildRepoConfig(
 		labels: { ...labels, ...repo.labels },
 		teams: teamAccess,
 		resolvedBranchProtection: { ...rulesetProtections, ...repoBranchProtection },
+		squashMergeCommitTitle: "PR_TITLE",
+		squashMergeCommitMessage: "COMMIT_MESSAGES",
 	};
 }

@@ -4,7 +4,11 @@ import { EnvironmentConfigSchema } from "./environment";
 import { LabelSetSchema } from "./label";
 import type { TeamAccess } from "./team";
 
-export const RepoVisibilitySchema = v.picklist(["public", "private", "internal"]);
+export const RepoVisibilitySchema = v.picklist([
+	"public",
+	"private",
+	"internal",
+]);
 export const MergeStrategySchema = v.picklist(["merge", "squash", "rebase"]);
 
 // Branch protection mirrors BranchProtectionArgs from Pulumi — no custom schema needed.
@@ -24,7 +28,9 @@ const BranchProtectionSchema = v.object({
 	enforceAdmins: v.optional(v.boolean()),
 });
 
-export type BranchProtectionConfig = v.InferOutput<typeof BranchProtectionSchema>;
+export type BranchProtectionConfig = v.InferOutput<
+	typeof BranchProtectionSchema
+>;
 
 // What createBranchProtection receives — Pulumi's args minus the repo/pattern identifiers
 export type BranchProtectionEntry = Omit<
@@ -58,7 +64,15 @@ export const RepoConfigSchema = v.pipe(
 			if (seen.has(env.name)) {
 				addIssue({
 					message: `duplicate environment name "${env.name}"`,
-					path: [{ type: "object", origin: "value", input: dataset.value, key: "environments", value: dataset.value.environments }],
+					path: [
+						{
+							type: "object",
+							origin: "value",
+							input: dataset.value,
+							key: "environments",
+							value: dataset.value.environments,
+						},
+					],
 				});
 			}
 			seen.add(env.name);
@@ -88,6 +102,8 @@ export interface ResolvedRepoConfig
 	hasDiscussions: boolean;
 	teams: TeamAccess[];
 	resolvedBranchProtection: Record<string, BranchProtectionEntry>;
+	squashMergeCommitTitle: "PR_TITLE";
+	squashMergeCommitMessage: "COMMIT_MESSAGES";
 }
 
 export type RepoVisibility = v.InferOutput<typeof RepoVisibilitySchema>;

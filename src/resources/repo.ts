@@ -1,17 +1,20 @@
 import github from "@pulumi/github";
-import pulumi from "@pulumi/pulumi";
+import {
+	ComponentResource,
+	type ComponentResourceOptions,
+} from "@pulumi/pulumi";
 import type { ResolvedRepoConfig, TeamResourceMap } from "@/types";
 import { createBranchProtection } from "./branch";
 import { createEnvironments } from "./environments";
 import { createLabels } from "./labels";
 
 // Component resource representing a GitHub repository within an organization, along with its associated settings and resources.
-export default class OrgRepository extends pulumi.ComponentResource {
+export default class OrgRepository extends ComponentResource {
 	constructor(
 		name: string,
 		config: ResolvedRepoConfig,
 		teamResources: TeamResourceMap,
-		opts?: pulumi.ComponentResourceOptions,
+		opts?: ComponentResourceOptions,
 	) {
 		super("custom:github:OrgRepository", name, {}, opts);
 
@@ -32,6 +35,8 @@ export default class OrgRepository extends pulumi.ComponentResource {
 			resolvedBranchProtection,
 			environments,
 			labels,
+			squashMergeCommitTitle,
+			squashMergeCommitMessage,
 		} = config;
 
 		const allowSquashMerge = mergeStrategies.includes("squash");
@@ -55,8 +60,8 @@ export default class OrgRepository extends pulumi.ComponentResource {
 				allowRebaseMerge: mergeStrategies.includes("rebase"),
 				allowSquashMerge,
 				...(allowSquashMerge && {
-					squashMergeCommitTitle: "PR_TITLE",
-					squashMergeCommitMessage: "COMMIT_MESSAGES",
+					squashMergeCommitTitle,
+					squashMergeCommitMessage,
 				}),
 			},
 			// Bind to the parent resource
@@ -82,15 +87,18 @@ export default class OrgRepository extends pulumi.ComponentResource {
 			},
 		);
 
-		createEnvironments({
-			resourcePrefix: name,
-			environments: environments ?? [],
-			repo,
-			teamResources,
-		});
+		createEnvironments(
+			{
+				resourcePrefix: name,
+				environments: environments ?? [],
+				repo,
+				teamResources,
+			},
+			{ parent: this },
+		);
 
 		if (labels && Object.keys(labels).length > 0) {
-			createLabels({ resourcePrefix: name, labels, repo });
+			createLabels({ resourcePrefix: name, labels, repo }, { parent: this });
 		}
 	}
 }

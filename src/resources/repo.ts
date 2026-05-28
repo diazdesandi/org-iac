@@ -62,7 +62,7 @@ export function createRepo(
 
 	Object.entries(resolvedBranchProtection).forEach(([pattern, protection]) => {
 		createBranchProtection({
-			resourceName: `${name}-bp-${pattern.replace(/\//g, "__")}`,
+			resourceName: `${name}-bp-${pattern.replace(/\//g, "-")}`,
 			pattern,
 			protection,
 			repo,

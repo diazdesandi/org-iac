@@ -17,12 +17,10 @@ export function createEnvironments(args: EnvArgs): RepositoryEnvironment[] {
 			return pulumi.output(team.id).apply((id) => Number.parseInt(id, 10));
 		});
 
-		let branchPolicy: { protectedBranches: boolean; customBranchPolicies: boolean } | undefined;
-		if (deploymentBranchPolicy === "protected") {
-			branchPolicy = { protectedBranches: true, customBranchPolicies: false };
-		} else if (deploymentBranchPolicy === "unprotected") {
-			branchPolicy = { protectedBranches: false, customBranchPolicies: false };
-		}
+		const branchPolicy =
+			deploymentBranchPolicy === "protected"
+				? { protectedBranches: true, customBranchPolicies: false }
+				: undefined;
 
 		return new github.RepositoryEnvironment(
 			`${resourcePrefix}-env-${name}`,

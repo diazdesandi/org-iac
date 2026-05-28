@@ -6,6 +6,7 @@ import {
 	RepoConfigSchema,
 	RepoVisibilitySchema,
 } from "./repo";
+import { TeamsConfigSchema } from "./team";
 
 function findDuplicates(values: string[]): string[] {
 	const groups = groupBy(values, (v) => v);
@@ -105,25 +106,10 @@ export const RulesetsFileSchema = z
 
 export const InfraConfigSchema = z.object({
 	org: OrgConfigSchema,
-	labelGroups: LabelGroupsSchema,
+	labels: LabelSetSchema,
 	repos: ReposFileSchema.shape.repos,
 	rulesets: RulesetsFileSchema.shape.rulesets,
-	teams: z.object({
-		teams: z.array(
-			z.object({
-				slug: z.string(),
-				name: z.string().optional(),
-			}),
-		),
-		repoAccess: z.record(
-			z.array(
-				z.object({
-					team: z.string(),
-					level: z.enum(["read", "write", "admin"]),
-				}),
-			),
-		),
-	}),
+	teams: TeamsConfigSchema,
 });
 
 export type InfraConfig = z.infer<typeof InfraConfigSchema>;

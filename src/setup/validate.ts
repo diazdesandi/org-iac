@@ -1,4 +1,4 @@
-import { uniq } from "es-toolkit";
+import { groupBy, uniq } from "es-toolkit";
 import type { InfraConfig, LabelGroups } from "@/types";
 import { normalizeBranchPattern } from "./utils";
 
@@ -49,57 +49,45 @@ function validateTeamRefs(config: InfraConfig): ValidationIssue[] {
 function validateRulesetPatterns(config: InfraConfig): ValidationIssue[] {
 	const { org, rulesets } = config;
 	const defaultBranch = org.defaults.defaultBranch;
-	const patternOwners = new Map<string, string[]>();
-	const issues: ValidationIssue[] = [];
 
-	for (const ruleset of rulesets) {
-		if (ruleset.target !== "branch" || ruleset.enforcement === "disabled")
-			continue;
-		for (const raw of ruleset.conditions.refName.includes) {
-			const pattern = normalizeBranchPattern(raw, defaultBranch);
-			const owners = patternOwners.get(pattern) ?? [];
-			owners.push(ruleset.id);
-			patternOwners.set(pattern, owners);
-		}
-	}
+	const patternOwners = groupBy(
+		rulesets
+			.filter((r) => r.target === "branch" && r.enforcement !== "disabled")
+			.flatMap((r) =>
+				r.conditions.refName.includes.map((raw) => ({
+					pattern: normalizeBranchPattern(raw, defaultBranch),
+					id: r.id,
+				})),
+			),
+		(x) => x.pattern,
+	);
 
-	for (const [pattern, owners] of patternOwners) {
-		const unique = uniq(owners);
-		if (unique.length > 1)
-			issues.push(
-				issue(
-					"rulesets",
-					`branch pattern "${pattern}" appears in multiple rulesets (${unique.join(", ")})`,
-				),
-			);
-	}
-
-	return issues;
+	return Object.entries(patternOwners)
+		.filter(([, owners]) => owners.length > 1)
+		.map(([pattern, owners]) =>
+			issue(
+				"rulesets",
+				`branch pattern "${pattern}" appears in multiple rulesets (${uniq(owners.map((o) => o.id)).join(", ")})`,
+			),
+		);
 }
 
 function validateLabelGroups(labelGroups: LabelGroups): ValidationIssue[] {
-	const labelOwners = new Map<string, string[]>();
-	const issues: ValidationIssue[] = [];
+	const labelOwners = groupBy(
+		Object.entries(labelGroups).flatMap(([group, labels]) =>
+			Object.keys(labels).map((name) => ({ name, group })),
+		),
+		(x) => x.name,
+	);
 
-	for (const [group, labels] of Object.entries(labelGroups)) {
-		for (const name of Object.keys(labels)) {
-			const owners = labelOwners.get(name) ?? [];
-			owners.push(group);
-			labelOwners.set(name, owners);
-		}
-	}
-
-	for (const [name, owners] of labelOwners) {
-		if (owners.length > 1)
-			issues.push(
-				issue(
-					`labels.${name}`,
-					`defined in multiple groups (${owners.join(", ")})`,
-				),
-			);
-	}
-
-	return issues;
+	return Object.entries(labelOwners)
+		.filter(([, owners]) => owners.length > 1)
+		.map(([name, owners]) =>
+			issue(
+				`labels.${name}`,
+				`defined in multiple groups (${owners.map((o) => o.group).join(", ")})`,
+			),
+		);
 }
 
 export function validateCrossRefs(

@@ -23,24 +23,12 @@ export function createRulesets(
 					requiredLinearHistory: rules.requiredLinearHistory,
 					deletion: rules.deletion,
 					nonFastForward: rules.nonFastForward,
-					pullRequest: rules.pullRequest
-						? {
-								requiredApprovingReviewCount:
-									rules.pullRequest.requiredApprovingReviewCount,
-								dismissStaleReviewsOnPush:
-									rules.pullRequest.dismissStaleReviewsOnPush,
-								requireCodeOwnerReview:
-									rules.pullRequest.requireCodeOwnerReview,
-								requireLastPushApproval:
-									rules.pullRequest.requireLastPushApproval,
-							}
-						: undefined,
+					pullRequest: rules.pullRequest,
 					requiredStatusChecks: rules.requiredStatusChecks
 						? {
+								...rules.requiredStatusChecks,
 								requiredChecks:
 									rules.requiredStatusChecks.requiredChecks ?? [],
-								strictRequiredStatusChecksPolicy:
-									rules.requiredStatusChecks.strictRequiredStatusChecksPolicy,
 							}
 						: undefined,
 				},

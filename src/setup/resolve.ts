@@ -1,4 +1,4 @@
-import { mapValues, toMerged } from "es-toolkit";
+import { mapValues, omitBy } from "es-toolkit";
 import type {
 	BranchProtectionConfig,
 	BranchProtectionEntry,
@@ -24,11 +24,15 @@ function toBranchProtectionEntry(
 		organization,
 	);
 
-	const hasPrReviews =
-		config.requiredReviewCount !== undefined ||
-		config.dismissStaleReviews !== undefined ||
-		config.requireCodeOwnerReviews !== undefined ||
-		dismissalRestrictions !== undefined;
+	const prReviewConfig = {
+		requiredApprovingReviewCount: config.requiredReviewCount,
+		dismissStaleReviews: config.dismissStaleReviews,
+		requireCodeOwnerReviews: config.requireCodeOwnerReviews,
+		...(dismissalRestrictions ? { dismissalRestrictions } : {}),
+	};
+	const hasPrReviews = Object.values(prReviewConfig).some(
+		(v) => v !== undefined,
+	);
 
 	return {
 		enforceAdmins: config.enforceAdmins ?? true,
@@ -45,16 +49,7 @@ function toBranchProtectionEntry(
 					},
 				]
 			: undefined,
-		requiredPullRequestReviews: hasPrReviews
-			? [
-					{
-						requiredApprovingReviewCount: config.requiredReviewCount,
-						dismissStaleReviews: config.dismissStaleReviews,
-						requireCodeOwnerReviews: config.requireCodeOwnerReviews,
-						...(dismissalRestrictions ? { dismissalRestrictions } : {}),
-					},
-				]
-			: undefined,
+		requiredPullRequestReviews: hasPrReviews ? [prReviewConfig] : undefined,
 	};
 }
 
@@ -96,7 +91,10 @@ export function buildRulesetBranchProtection(
 		)
 		.reduce<Record<string, BranchProtectionEntry>>(
 			(acc, { pattern, entry }) => {
-				acc[pattern] = { ...acc[pattern], ...entry };
+				acc[pattern] = {
+					...acc[pattern],
+					...omitBy(entry, (v) => v === undefined),
+				};
 				return acc;
 			},
 			{},
@@ -153,9 +151,6 @@ export function buildRepoConfig(
 		hasDiscussions: repo.hasDiscussions ?? features.discussions,
 		labels: { ...labels, ...repo.labels },
 		teams: teamAccess,
-		resolvedBranchProtection: toMerged(
-			rulesetProtections,
-			repoBranchProtection,
-		),
+		resolvedBranchProtection: { ...rulesetProtections, ...repoBranchProtection },
 	};
 }

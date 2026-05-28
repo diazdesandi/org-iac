@@ -1,30 +1,30 @@
 import type { BranchProtectionArgs } from "@pulumi/github/branchProtection";
-import { z } from "zod";
+import * as v from "valibot";
 import { EnvironmentConfigSchema } from "./environment";
 import { LabelSetSchema } from "./label";
 import type { TeamAccess } from "./team";
 
-export const RepoVisibilitySchema = z.enum(["public", "private", "internal"]);
-export const MergeStrategySchema = z.enum(["merge", "squash", "rebase"]);
+export const RepoVisibilitySchema = v.picklist(["public", "private", "internal"]);
+export const MergeStrategySchema = v.picklist(["merge", "squash", "rebase"]);
 
 // Branch protection mirrors BranchProtectionArgs from Pulumi — no custom schema needed.
 // We only validate the fields users can set in YAML; Pulumi owns the rest.
-const BranchProtectionSchema = z.object({
-	requiredReviewCount: z.number().optional(),
-	dismissStaleReviews: z.boolean().optional(),
-	requireCodeOwnerReviews: z.boolean().optional(),
-	restrictDismissalsToTeams: z.array(z.string()).optional(),
-	requiredStatusChecks: z.array(z.string()).optional(),
-	strictStatusChecks: z.boolean().optional(),
-	requireSignedCommits: z.boolean().optional(),
-	requiredLinearHistory: z.boolean().optional(),
-	requireConversationResolution: z.boolean().optional(),
-	allowsForcePushes: z.boolean().optional(),
-	allowsDeletions: z.boolean().optional(),
-	enforceAdmins: z.boolean().optional(),
+const BranchProtectionSchema = v.object({
+	requiredReviewCount: v.optional(v.number()),
+	dismissStaleReviews: v.optional(v.boolean()),
+	requireCodeOwnerReviews: v.optional(v.boolean()),
+	restrictDismissalsToTeams: v.optional(v.array(v.string())),
+	requiredStatusChecks: v.optional(v.array(v.string())),
+	strictStatusChecks: v.optional(v.boolean()),
+	requireSignedCommits: v.optional(v.boolean()),
+	requiredLinearHistory: v.optional(v.boolean()),
+	requireConversationResolution: v.optional(v.boolean()),
+	allowsForcePushes: v.optional(v.boolean()),
+	allowsDeletions: v.optional(v.boolean()),
+	enforceAdmins: v.optional(v.boolean()),
 });
 
-export type BranchProtectionConfig = z.infer<typeof BranchProtectionSchema>;
+export type BranchProtectionConfig = v.InferOutput<typeof BranchProtectionSchema>;
 
 // What createBranchProtection receives — Pulumi's args minus the repo/pattern identifiers
 export type BranchProtectionEntry = Omit<
@@ -32,40 +32,41 @@ export type BranchProtectionEntry = Omit<
 	"repositoryId" | "pattern"
 >;
 
-export const RepoConfigSchema = z
-	.object({
-		name: z.string(),
-		description: z.string(),
-		visibility: RepoVisibilitySchema.optional(),
-		topics: z.array(z.string()).optional(),
-		homepage: z.string().optional(),
-		mergeStrategies: z.array(MergeStrategySchema).optional(),
-		deleteBranchOnMerge: z.boolean().optional(),
-		autoInit: z.boolean().optional(),
-		archived: z.boolean().optional(),
-		hasIssues: z.boolean().optional(),
-		hasWiki: z.boolean().optional(),
-		hasProjects: z.boolean().optional(),
-		hasDiscussions: z.boolean().optional(),
-		labels: LabelSetSchema.optional(),
-		branchProtection: z.record(z.string(), BranchProtectionSchema).optional(),
-		environments: z.array(EnvironmentConfigSchema).optional(),
-	})
-	.superRefine((data, ctx) => {
+export const RepoConfigSchema = v.pipe(
+	v.object({
+		name: v.string(),
+		description: v.string(),
+		visibility: v.optional(RepoVisibilitySchema),
+		topics: v.optional(v.array(v.string())),
+		homepage: v.optional(v.string()),
+		mergeStrategies: v.optional(v.array(MergeStrategySchema)),
+		deleteBranchOnMerge: v.optional(v.boolean()),
+		autoInit: v.optional(v.boolean()),
+		archived: v.optional(v.boolean()),
+		hasIssues: v.optional(v.boolean()),
+		hasWiki: v.optional(v.boolean()),
+		hasProjects: v.optional(v.boolean()),
+		hasDiscussions: v.optional(v.boolean()),
+		labels: v.optional(LabelSetSchema),
+		branchProtection: v.optional(v.record(v.string(), BranchProtectionSchema)),
+		environments: v.optional(v.array(EnvironmentConfigSchema)),
+	}),
+	v.rawCheck(({ dataset, addIssue }) => {
+		if (!dataset.typed) return;
 		const seen = new Set<string>();
-		for (const env of data.environments ?? []) {
+		for (const env of dataset.value.environments ?? []) {
 			if (seen.has(env.name)) {
-				ctx.addIssue({
-					code: "custom",
-					path: ["environments"],
+				addIssue({
 					message: `duplicate environment name "${env.name}"`,
+					path: [{ type: "object", origin: "value", input: dataset.value, key: "environments", value: dataset.value.environments }],
 				});
 			}
 			seen.add(env.name);
 		}
-	});
+	}),
+);
 
-export type RepoConfig = z.infer<typeof RepoConfigSchema>;
+export type RepoConfig = v.InferOutput<typeof RepoConfigSchema>;
 
 export interface ResolvedRepoConfig
 	extends Omit<
@@ -89,5 +90,5 @@ export interface ResolvedRepoConfig
 	resolvedBranchProtection: Record<string, BranchProtectionEntry>;
 }
 
-export type RepoVisibility = z.infer<typeof RepoVisibilitySchema>;
-export type MergeStrategy = z.infer<typeof MergeStrategySchema>;
+export type RepoVisibility = v.InferOutput<typeof RepoVisibilitySchema>;
+export type MergeStrategy = v.InferOutput<typeof MergeStrategySchema>;

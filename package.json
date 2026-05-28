@@ -10,6 +10,6 @@
     "@pulumi/github": "^6.14.0",
     "@pulumi/pulumi": "^3.243.0",
     "es-toolkit": "^1.46.1",
-    "zod": "^4.4.3"
+    "valibot": "^1.4.1"
   }
 }

@@ -1,8 +1,8 @@
 import {
-	createRepo,
 	createRulesets,
 	createTeamMemberships,
 	createTeams,
+	OrgRepository,
 } from "@/resources";
 import {
 	buildRepoConfig,
@@ -33,6 +33,6 @@ export default async function setupOrg() {
 			labels,
 			organization,
 		});
-		createRepo(resolved, teamResources);
+		new OrgRepository(resolved.name, resolved, teamResources); // NOSONAR
 	}
 }

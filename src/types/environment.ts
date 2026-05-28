@@ -1,9 +1,9 @@
-import { z } from "zod";
+import * as v from "valibot";
 
-export const EnvironmentConfigSchema = z.object({
-	name: z.string(),
-	requiredReviewerTeamSlugs: z.array(z.string()).optional(),
-	deploymentBranchPolicy: z.enum(["protected", "unprotected"]).optional(),
+export const EnvironmentConfigSchema = v.object({
+	name: v.string(),
+	requiredReviewerTeamSlugs: v.optional(v.array(v.string())),
+	deploymentBranchPolicy: v.optional(v.picklist(["protected", "unprotected"])),
 });
 
-export type EnvironmentConfig = z.infer<typeof EnvironmentConfigSchema>;
+export type EnvironmentConfig = v.InferOutput<typeof EnvironmentConfigSchema>;

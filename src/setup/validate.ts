@@ -1,11 +1,7 @@
 import { groupBy, uniq } from "es-toolkit";
 import type { InfraConfig, LabelGroups } from "@/types";
+import type { ValidationIssue } from "./types";
 import { normalizeBranchPattern } from "./utils";
-
-export interface ValidationIssue {
-	path: string;
-	message: string;
-}
 
 function issue(path: string, message: string): ValidationIssue {
 	return { path, message };

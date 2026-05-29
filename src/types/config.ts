@@ -84,6 +84,12 @@ const RulesetConditionsSchema = v.object({
 		includes: v.array(v.string()),
 		excludes: v.optional(v.array(v.string())),
 	}),
+	repositoryName: v.optional(
+		v.object({
+			includes: v.optional(v.array(v.string()), ["~ALL"]),
+			excludes: v.optional(v.array(v.string()), []),
+		}),
+	),
 });
 
 export const RulesetConfigSchema = v.object({

@@ -1,3 +1,4 @@
+import pulumi from "@pulumi/pulumi";
 import {
 	createRulesets,
 	createTeamMemberships,
@@ -15,9 +16,13 @@ export default async function setupOrg() {
 	const { org, repos, teams, rulesets, labels } = config;
 	const { defaults, organization } = org;
 
-	const teamResources = createTeams(teams);
-	createTeamMemberships(teams, teamResources);
-	createRulesets(rulesets);
+	const pulumiConfig = new pulumi.Config();
+	const enableTeams = pulumiConfig.getBoolean("enableTeams") ?? true;
+	const enableRulesets = pulumiConfig.getBoolean("enableRulesets") ?? true;
+
+	const teamResources = enableTeams ? createTeams(teams) : {};
+	if (enableTeams) createTeamMemberships(teams, teamResources);
+	if (enableRulesets) createRulesets(rulesets);
 
 	const rulesetProtections = buildRulesetBranchProtection(
 		rulesets,
@@ -26,10 +31,13 @@ export default async function setupOrg() {
 	);
 
 	for (const repo of repos) {
+		const teamAccess = enableTeams
+			? resolveTeamAccess(repo.name, teams.repoAccess, teamResources)
+			: [];
 		const resolved = buildRepoConfig(repo, {
 			defaults,
 			rulesetProtections,
-			teamAccess: resolveTeamAccess(repo.name, teams.repoAccess, teamResources),
+			teamAccess,
 			labels,
 			organization,
 		});

@@ -1,5 +1,5 @@
 config:
-  github:owner: diazdesandi
-  github:org: diazdesandi-org
+  github:owner: diazdesandi-org
   github:token:
-    secure: AAABAA4wb3wxF+JjKjuobPQHFZjGGzOw8ynUn3RoT5iDFea57vOX3rl5GRSiLoW8Fqzt6VU8mD38i/boJ3sOl55ZtMkQSF+7
+    secure: AAABAAS57IU5NnDLdYW/hoC0YNj0ytoiIQ8fswXobssBXEGLUmoE8prJecOeo1a+VfcmlVRpR2777g5+3oJbKcZi7+C7mbgz
+  org-config:enableRulesets: "false"

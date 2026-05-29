@@ -18,6 +18,10 @@ export function createRulesets(
 						includes: conditions.refName.includes,
 						excludes: conditions.refName.excludes ?? [],
 					},
+					repositoryName: {
+						includes: conditions.repositoryName?.includes ?? ["~ALL"],
+						excludes: conditions.repositoryName?.excludes ?? [],
+					},
 				},
 				rules: {
 					requiredLinearHistory: rules.requiredLinearHistory,

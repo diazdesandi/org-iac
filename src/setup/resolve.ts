@@ -1,4 +1,3 @@
-import { mapValues, omitBy } from "es-toolkit";
 import type {
 	BranchProtectionConfig,
 	BranchProtectionEntry,
@@ -6,14 +5,13 @@ import type {
 	OrgConfig,
 	RepoConfig,
 	ResolvedRepoConfig,
-	RulesetConfig,
 	TeamAccess,
 	TeamResourceMap,
 	TeamsConfig,
 } from "@/types";
 import { normalizeActors, normalizeBranchPattern } from "./utils";
 
-// ── Branch protection ────────────────────────────────────────────────────────
+// Branch protection
 
 function toBranchProtectionEntry(
 	config: BranchProtectionConfig,
@@ -53,55 +51,7 @@ function toBranchProtectionEntry(
 	};
 }
 
-export function buildRulesetBranchProtection(
-	rulesets: RulesetConfig[],
-	defaultBranch: string,
-	organization: string,
-): Record<string, BranchProtectionEntry> {
-	return rulesets
-		.filter((r) => r.target === "branch" && r.enforcement !== "disabled")
-		.flatMap((r) =>
-			r.conditions.refName.includes.map((pattern) => ({
-				pattern: normalizeBranchPattern(pattern, defaultBranch),
-				entry: toBranchProtectionEntry(
-					{
-						requiredReviewCount:
-							r.rules.pullRequest?.requiredApprovingReviewCount,
-						dismissStaleReviews: r.rules.pullRequest?.dismissStaleReviewsOnPush,
-						requireCodeOwnerReviews:
-							r.rules.pullRequest?.requireCodeOwnerReview,
-						requiredStatusChecks:
-							r.rules.requiredStatusChecks?.requiredChecks?.map(
-								(c) => c.context,
-							),
-						strictStatusChecks:
-							r.rules.requiredStatusChecks?.strictRequiredStatusChecksPolicy,
-						requiredLinearHistory: r.rules.requiredLinearHistory,
-
-						allowsDeletions:
-							r.rules.deletion === undefined ? undefined : !r.rules.deletion,
-						allowsForcePushes:
-							r.rules.nonFastForward === undefined
-								? undefined
-								: !r.rules.nonFastForward,
-					},
-					organization,
-				),
-			})),
-		)
-		.reduce<Record<string, BranchProtectionEntry>>(
-			(acc, { pattern, entry }) => {
-				acc[pattern] = {
-					...acc[pattern],
-					...omitBy(entry, (v) => v === undefined),
-				};
-				return acc;
-			},
-			{},
-		);
-}
-
-// ── Team access ───────────────────────────────────────────────────────────────
+// Team access
 
 export function resolveTeamAccess(
 	repoName: string,
@@ -116,11 +66,10 @@ export function resolveTeamAccess(
 	});
 }
 
-// ── Repo config ───────────────────────────────────────────────────────────────
+// Repo config
 
 export interface RepoBuildContext {
 	defaults: OrgConfig["defaults"];
-	rulesetProtections: Record<string, BranchProtectionEntry>;
 	teamAccess: TeamAccess[];
 	labels: LabelSet;
 	organization: string;
@@ -130,14 +79,19 @@ export function buildRepoConfig(
 	repo: RepoConfig,
 	ctx: RepoBuildContext,
 ): ResolvedRepoConfig {
-	const { defaults, rulesetProtections, teamAccess, labels, organization } =
-		ctx;
+	const { defaults, teamAccess, labels, organization } = ctx;
 	const { features } = defaults;
 
-	const repoBranchProtection = mapValues(
-		repo.branchProtection ?? {},
-		(config) => toBranchProtectionEntry(config, organization),
-	);
+	// Branch protection comes only from explicit per-repo config; org rulesets
+	// own branch enforcement. Keys are normalized so "main", "~DEFAULT_BRANCH",
+	// and "refs/heads/main" collapse to a single pattern.
+	const resolvedBranchProtection: Record<string, BranchProtectionEntry> =
+		Object.fromEntries(
+			Object.entries(repo.branchProtection ?? {}).map(([pattern, config]) => [
+				normalizeBranchPattern(pattern, defaults.defaultBranch),
+				toBranchProtectionEntry(config, organization),
+			]),
+		);
 
 	return {
 		...repo,
@@ -151,8 +105,8 @@ export function buildRepoConfig(
 		hasDiscussions: repo.hasDiscussions ?? features.discussions,
 		labels: { ...labels, ...repo.labels },
 		teams: teamAccess,
-		resolvedBranchProtection: { ...rulesetProtections, ...repoBranchProtection },
-		squashMergeCommitTitle: "PR_TITLE",
-		squashMergeCommitMessage: "COMMIT_MESSAGES",
+		resolvedBranchProtection,
+		squashMergeCommitTitle: defaults.squashMergeCommitTitle,
+		squashMergeCommitMessage: defaults.squashMergeCommitMessage,
 	};
 }

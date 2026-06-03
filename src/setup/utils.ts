@@ -11,7 +11,5 @@ export function normalizeActors(
 	org: string,
 ): string[] | undefined {
 	if (!actors?.length) return undefined;
-	return actors.map((a) =>
-		a.startsWith("/") || a.includes("/") ? a : `${org}/${a}`,
-	);
+	return actors.map((a) => (a.includes("/") ? a : `${org}/${a}`));
 }

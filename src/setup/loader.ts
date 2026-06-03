@@ -13,9 +13,9 @@ import { validateCrossRefs } from "./validate";
 type Schema<T> = v.BaseSchema<unknown, T, v.BaseIssue<unknown>>;
 
 function parse<T>(schema: Schema<T>, data: unknown, file: string): T {
-	const result = v.safeParse(schema, data);
-	if (!result.success) {
-		const msg = result.issues
+	const { success, issues, output } = v.safeParse(schema, data);
+	if (!success) {
+		const msg = issues
 			.map((i) => {
 				const path = i.path?.map((p) => String(p.key)).join(".") ?? "root";
 				return `${path}: ${i.message}`;
@@ -23,7 +23,7 @@ function parse<T>(schema: Schema<T>, data: unknown, file: string): T {
 			.join("; ");
 		throw new Error(`Invalid ${file}: ${msg}`);
 	}
-	return result.output;
+	return output;
 }
 
 export function loadConfig(): InfraConfig {
@@ -54,11 +54,11 @@ export function loadConfig(): InfraConfig {
 	return config;
 }
 
-export const config = (() => {
+export function initConfig(): InfraConfig {
 	try {
 		return loadConfig();
 	} catch (err) {
 		console.error(err instanceof Error ? err.message : String(err));
 		process.exit(1);
 	}
-})();
+}

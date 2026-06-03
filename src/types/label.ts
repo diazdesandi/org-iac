@@ -1,6 +1,6 @@
 import * as v from "valibot";
 
-export const LabelDefinitionSchema = v.object({
+export const LabelDefinitionSchema = v.strictObject({
 	color: v.pipe(
 		v.string(),
 		v.regex(/^[0-9a-fA-F]{6}$/, "must be a 6-digit hex color (without #)"),

@@ -5,6 +5,8 @@ import {
 	MergeStrategySchema,
 	RepoConfigSchema,
 	RepoVisibilitySchema,
+	SquashMergeCommitMessageSchema,
+	SquashMergeCommitTitleSchema,
 } from "./repo";
 import { TeamsConfigSchema } from "./team";
 
@@ -13,22 +15,27 @@ function findDuplicates(values: string[]): string[] {
 	return Object.keys(groups).filter((k) => groups[k].length > 1);
 }
 
-const OrgFeaturesSchema = v.object({
+const OrgFeaturesSchema = v.strictObject({
 	issues: v.boolean(),
 	wiki: v.boolean(),
 	projects: v.boolean(),
 	discussions: v.boolean(),
 });
 
-const OrgDefaultsSchema = v.object({
+const OrgDefaultsSchema = v.strictObject({
 	visibility: RepoVisibilitySchema,
 	defaultBranch: v.string(),
 	deleteBranchOnMerge: v.boolean(),
 	mergeStrategies: v.array(MergeStrategySchema),
+	squashMergeCommitTitle: v.optional(SquashMergeCommitTitleSchema, "PR_TITLE"),
+	squashMergeCommitMessage: v.optional(
+		SquashMergeCommitMessageSchema,
+		"COMMIT_MESSAGES",
+	),
 	features: OrgFeaturesSchema,
 });
 
-export const OrgConfigSchema = v.object({
+export const OrgConfigSchema = v.strictObject({
 	owner: v.string(),
 	organization: v.string(),
 	defaults: OrgDefaultsSchema,
@@ -39,7 +46,7 @@ export const LabelGroupsSchema = v.record(v.string(), LabelSetSchema);
 const ReposArraySchema = v.array(RepoConfigSchema);
 
 export const ReposFileSchema = v.pipe(
-	v.object({ repos: ReposArraySchema }),
+	v.strictObject({ repos: ReposArraySchema }),
 	v.rawCheck(({ dataset, addIssue }) => {
 		if (!dataset.typed) return;
 		for (const dup of findDuplicates(dataset.value.repos.map((r) => r.name))) {
@@ -59,19 +66,19 @@ export const ReposFileSchema = v.pipe(
 	}),
 );
 
-const RulesetPullRequestSchema = v.object({
+const RulesetPullRequestSchema = v.strictObject({
 	requiredApprovingReviewCount: v.optional(v.number()),
 	dismissStaleReviewsOnPush: v.optional(v.boolean()),
 	requireCodeOwnerReview: v.optional(v.boolean()),
 	requireLastPushApproval: v.optional(v.boolean()),
 });
 
-const RulesetRequiredStatusChecksSchema = v.object({
-	requiredChecks: v.optional(v.array(v.object({ context: v.string() }))),
+const RulesetRequiredStatusChecksSchema = v.strictObject({
+	requiredChecks: v.optional(v.array(v.strictObject({ context: v.string() }))),
 	strictRequiredStatusChecksPolicy: v.optional(v.boolean()),
 });
 
-const RulesetRulesSchema = v.object({
+const RulesetRulesSchema = v.strictObject({
 	requiredLinearHistory: v.optional(v.boolean()),
 	deletion: v.optional(v.boolean()),
 	nonFastForward: v.optional(v.boolean()),
@@ -79,20 +86,20 @@ const RulesetRulesSchema = v.object({
 	requiredStatusChecks: v.optional(RulesetRequiredStatusChecksSchema),
 });
 
-const RulesetConditionsSchema = v.object({
-	refName: v.object({
+const RulesetConditionsSchema = v.strictObject({
+	refName: v.strictObject({
 		includes: v.array(v.string()),
 		excludes: v.optional(v.array(v.string())),
 	}),
 	repositoryName: v.optional(
-		v.object({
+		v.strictObject({
 			includes: v.optional(v.array(v.string()), ["~ALL"]),
 			excludes: v.optional(v.array(v.string()), []),
 		}),
 	),
 });
 
-export const RulesetConfigSchema = v.object({
+export const RulesetConfigSchema = v.strictObject({
 	id: v.string(),
 	name: v.optional(v.string()),
 	target: v.picklist(["branch", "tag", "push"]),
@@ -107,7 +114,7 @@ export const RulesetConfigSchema = v.object({
 const RulesetsArraySchema = v.array(RulesetConfigSchema);
 
 export const RulesetsFileSchema = v.pipe(
-	v.object({ rulesets: RulesetsArraySchema }),
+	v.strictObject({ rulesets: RulesetsArraySchema }),
 	v.rawCheck(({ dataset, addIssue }) => {
 		if (!dataset.typed) return;
 		for (const dup of findDuplicates(dataset.value.rulesets.map((r) => r.id))) {

@@ -11,9 +11,20 @@ export const RepoVisibilitySchema = v.picklist([
 ]);
 export const MergeStrategySchema = v.picklist(["merge", "squash", "rebase"]);
 
+// GitHub's allowed values for squash-merge commit shaping.
+export const SquashMergeCommitTitleSchema = v.picklist([
+	"PR_TITLE",
+	"COMMIT_OR_PR_TITLE",
+]);
+export const SquashMergeCommitMessageSchema = v.picklist([
+	"PR_BODY",
+	"COMMIT_MESSAGES",
+	"BLANK",
+]);
+
 // Branch protection mirrors BranchProtectionArgs from Pulumi — no custom schema needed.
 // We only validate the fields users can set in YAML; Pulumi owns the rest.
-const BranchProtectionSchema = v.object({
+const BranchProtectionSchema = v.strictObject({
 	requiredReviewCount: v.optional(v.number()),
 	dismissStaleReviews: v.optional(v.boolean()),
 	requireCodeOwnerReviews: v.optional(v.boolean()),
@@ -39,7 +50,7 @@ export type BranchProtectionEntry = Omit<
 >;
 
 export const RepoConfigSchema = v.pipe(
-	v.object({
+	v.strictObject({
 		name: v.string(),
 		description: v.string(),
 		visibility: v.optional(RepoVisibilitySchema),
@@ -102,9 +113,15 @@ export interface ResolvedRepoConfig
 	hasDiscussions: boolean;
 	teams: TeamAccess[];
 	resolvedBranchProtection: Record<string, BranchProtectionEntry>;
-	squashMergeCommitTitle: "PR_TITLE";
-	squashMergeCommitMessage: "COMMIT_MESSAGES";
+	squashMergeCommitTitle: SquashMergeCommitTitle;
+	squashMergeCommitMessage: SquashMergeCommitMessage;
 }
 
 export type RepoVisibility = v.InferOutput<typeof RepoVisibilitySchema>;
 export type MergeStrategy = v.InferOutput<typeof MergeStrategySchema>;
+export type SquashMergeCommitTitle = v.InferOutput<
+	typeof SquashMergeCommitTitleSchema
+>;
+export type SquashMergeCommitMessage = v.InferOutput<
+	typeof SquashMergeCommitMessageSchema
+>;

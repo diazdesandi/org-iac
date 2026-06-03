@@ -10,12 +10,12 @@ export const TeamPermissionSchema = v.picklist([
 	"admin",
 ]);
 
-export const TeamMemberConfigSchema = v.object({
+export const TeamMemberConfigSchema = v.strictObject({
 	username: v.string(),
 	role: v.picklist(["member", "maintainer"]),
 });
 
-export const TeamConfigSchema = v.object({
+export const TeamConfigSchema = v.strictObject({
 	slug: v.string(),
 	name: v.string(),
 	description: v.optional(v.string()),
@@ -23,13 +23,13 @@ export const TeamConfigSchema = v.object({
 	members: v.optional(v.array(TeamMemberConfigSchema)),
 });
 
-const RepoAccessEntrySchema = v.object({
+const RepoAccessEntrySchema = v.strictObject({
 	team: v.string(),
 	permission: TeamPermissionSchema,
 });
 
 export const TeamsConfigSchema = v.pipe(
-	v.object({
+	v.strictObject({
 		teams: v.array(TeamConfigSchema),
 		repoAccess: v.record(v.string(), v.array(RepoAccessEntrySchema)),
 	}),
@@ -40,7 +40,15 @@ export const TeamsConfigSchema = v.pipe(
 			if (seen.has(team.slug)) {
 				addIssue({
 					message: `duplicate team slug "${team.slug}"`,
-					path: [{ type: "object", origin: "value", input: dataset.value, key: "teams", value: dataset.value.teams }],
+					path: [
+						{
+							type: "object",
+							origin: "value",
+							input: dataset.value,
+							key: "teams",
+							value: dataset.value.teams,
+						},
+					],
 				});
 			}
 			seen.add(team.slug);

@@ -1,0 +1,138 @@
+{
+	"type": "object",
+	"properties": {
+		"rulesets": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"target": {
+						"enum": ["branch", "tag", "push"],
+						"type": "string"
+					},
+					"enforcement": {
+						"enum": ["active", "disabled", "evaluate"],
+						"type": "string",
+						"default": "active"
+					},
+					"conditions": {
+						"type": "object",
+						"properties": {
+							"refName": {
+								"type": "object",
+								"properties": {
+									"includes": {
+										"type": "array",
+										"items": {
+											"type": "string"
+										}
+									},
+									"excludes": {
+										"type": "array",
+										"items": {
+											"type": "string"
+										}
+									}
+								},
+								"required": ["includes"],
+								"additionalProperties": false
+							},
+							"repositoryName": {
+								"type": "object",
+								"properties": {
+									"includes": {
+										"type": "array",
+										"items": {
+											"type": "string"
+										},
+										"default": ["~ALL"]
+									},
+									"excludes": {
+										"type": "array",
+										"items": {
+											"type": "string"
+										},
+										"default": []
+									}
+								},
+								"required": [],
+								"additionalProperties": false
+							}
+						},
+						"required": ["refName"],
+						"additionalProperties": false
+					},
+					"rules": {
+						"type": "object",
+						"properties": {
+							"requiredLinearHistory": {
+								"type": "boolean"
+							},
+							"deletion": {
+								"type": "boolean"
+							},
+							"nonFastForward": {
+								"type": "boolean"
+							},
+							"pullRequest": {
+								"type": "object",
+								"properties": {
+									"requiredApprovingReviewCount": {
+										"type": "number"
+									},
+									"dismissStaleReviewsOnPush": {
+										"type": "boolean"
+									},
+									"requireCodeOwnerReview": {
+										"type": "boolean"
+									},
+									"requireLastPushApproval": {
+										"type": "boolean"
+									}
+								},
+								"required": [],
+								"additionalProperties": false
+							},
+							"requiredStatusChecks": {
+								"type": "object",
+								"properties": {
+									"requiredChecks": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"context": {
+													"type": "string"
+												}
+											},
+											"required": ["context"],
+											"additionalProperties": false
+										}
+									},
+									"strictRequiredStatusChecksPolicy": {
+										"type": "boolean"
+									}
+								},
+								"required": [],
+								"additionalProperties": false
+							}
+						},
+						"required": [],
+						"additionalProperties": false
+					}
+				},
+				"required": ["id", "target", "conditions", "rules"],
+				"additionalProperties": false
+			}
+		}
+	},
+	"required": ["rulesets"],
+	"additionalProperties": false,
+	"$schema": "http://json-schema.org/draft-07/schema#"
+}

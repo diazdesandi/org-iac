@@ -1,0 +1,73 @@
+{
+	"type": "object",
+	"properties": {
+		"owner": {
+			"type": "string"
+		},
+		"organization": {
+			"type": "string"
+		},
+		"defaults": {
+			"type": "object",
+			"properties": {
+				"visibility": {
+					"enum": ["public", "private", "internal"],
+					"type": "string"
+				},
+				"defaultBranch": {
+					"type": "string"
+				},
+				"deleteBranchOnMerge": {
+					"type": "boolean"
+				},
+				"mergeStrategies": {
+					"type": "array",
+					"items": {
+						"enum": ["merge", "squash", "rebase"],
+						"type": "string"
+					}
+				},
+				"squashMergeCommitTitle": {
+					"enum": ["PR_TITLE", "COMMIT_OR_PR_TITLE"],
+					"type": "string",
+					"default": "PR_TITLE"
+				},
+				"squashMergeCommitMessage": {
+					"enum": ["PR_BODY", "COMMIT_MESSAGES", "BLANK"],
+					"type": "string",
+					"default": "COMMIT_MESSAGES"
+				},
+				"features": {
+					"type": "object",
+					"properties": {
+						"issues": {
+							"type": "boolean"
+						},
+						"wiki": {
+							"type": "boolean"
+						},
+						"projects": {
+							"type": "boolean"
+						},
+						"discussions": {
+							"type": "boolean"
+						}
+					},
+					"required": ["issues", "wiki", "projects", "discussions"],
+					"additionalProperties": false
+				}
+			},
+			"required": [
+				"visibility",
+				"defaultBranch",
+				"deleteBranchOnMerge",
+				"mergeStrategies",
+				"features"
+			],
+			"additionalProperties": false
+		}
+	},
+	"required": ["owner", "organization", "defaults"],
+	"additionalProperties": false,
+	"$schema": "http://json-schema.org/draft-07/schema#"
+}

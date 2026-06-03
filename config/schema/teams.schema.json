@@ -1,0 +1,71 @@
+{
+	"type": "object",
+	"properties": {
+		"teams": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"slug": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"privacy": {
+						"enum": ["secret", "closed"],
+						"type": "string"
+					},
+					"members": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"username": {
+									"type": "string"
+								},
+								"role": {
+									"enum": ["member", "maintainer"],
+									"type": "string"
+								}
+							},
+							"required": ["username", "role"],
+							"additionalProperties": false
+						}
+					}
+				},
+				"required": ["slug", "name"],
+				"additionalProperties": false
+			}
+		},
+		"repoAccess": {
+			"type": "object",
+			"propertyNames": {
+				"type": "string"
+			},
+			"additionalProperties": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"team": {
+							"type": "string"
+						},
+						"permission": {
+							"enum": ["pull", "triage", "push", "maintain", "admin"],
+							"type": "string"
+						}
+					},
+					"required": ["team", "permission"],
+					"additionalProperties": false
+				}
+			}
+		}
+	},
+	"required": ["teams", "repoAccess"],
+	"additionalProperties": false,
+	"$schema": "http://json-schema.org/draft-07/schema#"
+}

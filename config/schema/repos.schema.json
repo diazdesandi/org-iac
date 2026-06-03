@@ -1,0 +1,163 @@
+{
+	"type": "object",
+	"properties": {
+		"repos": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"visibility": {
+						"enum": ["public", "private", "internal"],
+						"type": "string"
+					},
+					"topics": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"homepage": {
+						"type": "string"
+					},
+					"mergeStrategies": {
+						"type": "array",
+						"items": {
+							"enum": ["merge", "squash", "rebase"],
+							"type": "string"
+						}
+					},
+					"deleteBranchOnMerge": {
+						"type": "boolean"
+					},
+					"autoInit": {
+						"type": "boolean"
+					},
+					"archived": {
+						"type": "boolean"
+					},
+					"hasIssues": {
+						"type": "boolean"
+					},
+					"hasWiki": {
+						"type": "boolean"
+					},
+					"hasProjects": {
+						"type": "boolean"
+					},
+					"hasDiscussions": {
+						"type": "boolean"
+					},
+					"labels": {
+						"type": "object",
+						"propertyNames": {
+							"type": "string"
+						},
+						"additionalProperties": {
+							"type": "object",
+							"properties": {
+								"color": {
+									"type": "string",
+									"pattern": "^[0-9a-fA-F]{6}$"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["color"],
+							"additionalProperties": false
+						}
+					},
+					"branchProtection": {
+						"type": "object",
+						"propertyNames": {
+							"type": "string"
+						},
+						"additionalProperties": {
+							"type": "object",
+							"properties": {
+								"requiredReviewCount": {
+									"type": "number"
+								},
+								"dismissStaleReviews": {
+									"type": "boolean"
+								},
+								"requireCodeOwnerReviews": {
+									"type": "boolean"
+								},
+								"restrictDismissalsToTeams": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								"requiredStatusChecks": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								"strictStatusChecks": {
+									"type": "boolean"
+								},
+								"requireSignedCommits": {
+									"type": "boolean"
+								},
+								"requiredLinearHistory": {
+									"type": "boolean"
+								},
+								"requireConversationResolution": {
+									"type": "boolean"
+								},
+								"allowsForcePushes": {
+									"type": "boolean"
+								},
+								"allowsDeletions": {
+									"type": "boolean"
+								},
+								"enforceAdmins": {
+									"type": "boolean"
+								}
+							},
+							"required": [],
+							"additionalProperties": false
+						}
+					},
+					"environments": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"name": {
+									"type": "string"
+								},
+								"requiredReviewerTeamSlugs": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								"deploymentBranchPolicy": {
+									"enum": ["protected", "unprotected"],
+									"type": "string"
+								}
+							},
+							"required": ["name"],
+							"additionalProperties": false
+						}
+					}
+				},
+				"required": ["name", "description"],
+				"additionalProperties": false
+			}
+		}
+	},
+	"required": ["repos"],
+	"additionalProperties": false,
+	"$schema": "http://json-schema.org/draft-07/schema#"
+}

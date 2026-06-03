@@ -11,6 +11,6 @@ export function createBranchProtection(
 	return new github.BranchProtection(
 		resourceName,
 		{ ...protection, repositoryId: repo.nodeId, pattern },
-		{ dependsOn: [repo] },
+		{ dependsOn: [repo], ...opts },
 	);
 }

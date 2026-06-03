@@ -79,12 +79,15 @@ export default class OrgRepository extends ComponentResource {
 
 			Object.entries(resolvedBranchProtection).forEach(
 				([pattern, protection]) => {
-					createBranchProtection({
-						resourceName: `${name}-bp-${pattern.replace(/[/*?[\]]/g, "-")}`,
-						pattern,
-						protection,
-						repo,
-					});
+					createBranchProtection(
+						{
+							resourceName: `${name}-bp-${pattern.replace(/[/*?[\]]/g, "-")}`,
+							pattern,
+							protection,
+							repo,
+						},
+						{ parent: this },
+					);
 				},
 			);
 

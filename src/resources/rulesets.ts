@@ -31,8 +31,7 @@ export function createRulesets(
 					requiredStatusChecks: rules.requiredStatusChecks
 						? {
 								...rules.requiredStatusChecks,
-								requiredChecks:
-									rules.requiredStatusChecks.requiredChecks ?? [],
+								requiredChecks: rules.requiredStatusChecks.requiredChecks ?? [],
 							}
 						: undefined,
 				},

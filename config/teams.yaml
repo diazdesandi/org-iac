@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=./schema/teams.schema.json
 teams:
   - slug: maintainers
     name: Maintainers

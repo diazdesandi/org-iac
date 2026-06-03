@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=./schema/repos.schema.json
 repos:
   - name: org-ci
     description: A repository for organization-wide CI/CD workflows and automation scripts.
@@ -7,7 +8,6 @@ repos:
       - cd
       - automation
       - github-actions
-    template: none
     mergeStrategies:
       - squash
     deleteBranchOnMerge: true
@@ -28,7 +28,6 @@ repos:
       - cli
       - automation
       - menu-bar
-    template: swift-package
     mergeStrategies:
       - squash
     deleteBranchOnMerge: true
@@ -43,7 +42,6 @@ repos:
   - name: main-repo
     description: Primary repository for product code and roadmap.
     visibility: public
-    template: none
     mergeStrategies:
       - squash
     deleteBranchOnMerge: true
@@ -58,7 +56,6 @@ repos:
   - name: dot-github
     description: Shared organization workflows, issue templates, and defaults.
     visibility: public
-    template: docs
     mergeStrategies:
       - squash
     deleteBranchOnMerge: true
@@ -73,7 +70,6 @@ repos:
   - name: homebrew-tap
     description: Homebrew tap formulas for organization releases.
     visibility: public
-    template: none
     mergeStrategies:
       - squash
     deleteBranchOnMerge: true
@@ -88,7 +84,6 @@ repos:
   - name: translations
     description: Translation files for the organization.
     visibility: public
-    template: none
     mergeStrategies:
       - squash
     deleteBranchOnMerge: true

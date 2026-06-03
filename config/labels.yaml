@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=./schema/labels.schema.json
 # ─── Default / General Issues ─────────────────────────────────────────────
 defaults:
   bug:

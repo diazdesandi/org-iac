@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=./schema/org.schema.json
 owner: diazdesandi
 organization: diazdesandi-org
 
@@ -7,8 +8,8 @@ defaults:
   deleteBranchOnMerge: true
   mergeStrategies:
     - squash
-  squashMergeCommitMessage: PR_TITLE
-  squashMergeCommitMessageFormat: COMMIT_MESSAGE
+  squashMergeCommitTitle: PR_TITLE
+  squashMergeCommitMessage: COMMIT_MESSAGES
   features:
     issues: true
     wiki: false

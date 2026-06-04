@@ -1,14 +1,23 @@
-import type { RepositoryEnvironment } from "@pulumi/github";
 import github from "@pulumi/github";
-import pulumi from "@pulumi/pulumi";
+import pulumi, { ComponentResource } from "@pulumi/pulumi";
 import type { EnvArgs } from "./types";
 
 export function createEnvironments(
 	args: EnvArgs,
-	opts?: pulumi.ResourceOptions,
-): RepositoryEnvironment[] {
+	opts?: pulumi.ComponentResourceOptions,
+): void {
 	const { resourcePrefix, environments, repo, teamResources } = args;
-	return environments.map((env) => {
+
+	if (environments.length === 0) return;
+
+	const component = new ComponentResource(
+		"custom:github:OrgRepositoryEnvironments",
+		`${resourcePrefix}-environments`,
+		{},
+		opts,
+	);
+
+	for (const env of environments) {
 		const { name, requiredReviewerTeamSlugs, deploymentBranchPolicy } = env;
 
 		const reviewerTeams = (requiredReviewerTeamSlugs ?? []).map((slug) => {
@@ -25,7 +34,7 @@ export function createEnvironments(
 				? { protectedBranches: true, customBranchPolicies: false }
 				: undefined;
 
-		return new github.RepositoryEnvironment(
+		new github.RepositoryEnvironment(
 			`${resourcePrefix}-env-${name}`,
 			{
 				repository: repo.name,
@@ -34,7 +43,11 @@ export function createEnvironments(
 				reviewers:
 					reviewerTeams.length > 0 ? [{ teams: reviewerTeams }] : undefined,
 			},
-			{ dependsOn: [repo], ...opts },
+			{
+				dependsOn: [repo],
+				parent: component,
+				aliases: opts?.parent ? [{ parent: opts.parent }] : [],
+			},
 		);
-	});
+	}
 }

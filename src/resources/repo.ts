@@ -2,13 +2,13 @@ import github from "@pulumi/github";
 import {
 	ComponentResource,
 	type ComponentResourceOptions,
+	mergeOptions,
 } from "@pulumi/pulumi";
 import type { ResolvedRepoConfig, TeamResourceMap } from "@/types";
 import { createBranchProtection } from "./branch";
 import { createEnvironments } from "./environments";
 import { createLabels } from "./labels";
 
-// Component resource representing a GitHub repository within an organization, along with its associated settings and resources.
 export default class OrgRepository extends ComponentResource {
 	constructor(
 		name: string,
@@ -64,21 +64,39 @@ export default class OrgRepository extends ComponentResource {
 					squashMergeCommitMessage,
 				}),
 			},
-			// Bind to the parent resource
 			{ parent: this },
 		);
 
 		if (!archived) {
-			for (const { slug, teamId, permission } of teams) {
-				new github.TeamRepository(
-					`${name}-team-${slug}`,
-					{ repository: repo.name, teamId, permission },
-					{ parent: this, dependsOn: [repo] },
+			if (teams.length > 0) {
+				const teamsComponent = new ComponentResource(
+					"custom:github:OrgRepositoryTeams",
+					`${name}-teams`,
+					{},
+					{ parent: this },
 				);
+				for (const { slug, teamId, permission } of teams) {
+					new github.TeamRepository(
+						`${name}-team-${slug}`,
+						{ repository: repo.name, teamId, permission },
+						{
+							parent: teamsComponent,
+							dependsOn: [repo],
+							aliases: [{ parent: this }],
+						},
+					);
+				}
 			}
 
-			Object.entries(resolvedBranchProtection).forEach(
-				([pattern, protection]) => {
+			const bpEntries = Object.entries(resolvedBranchProtection);
+			if (bpEntries.length > 0) {
+				const bpComponent = new ComponentResource(
+					"custom:github:OrgRepositoryBranchProtection",
+					`${name}-branch-protection`,
+					{},
+					{ parent: this },
+				);
+				for (const [pattern, protection] of bpEntries) {
 					createBranchProtection(
 						{
 							resourceName: `${name}-bp-${pattern.replace(/[/*?[\]]/g, "-")}`,
@@ -86,10 +104,13 @@ export default class OrgRepository extends ComponentResource {
 							protection,
 							repo,
 						},
-						{ parent: this },
+						mergeOptions(
+							{ parent: bpComponent },
+							{ aliases: [{ parent: this }] },
+						),
 					);
-				},
-			);
+				}
+			}
 
 			createEnvironments(
 				{
@@ -105,6 +126,7 @@ export default class OrgRepository extends ComponentResource {
 				createLabels({ resourcePrefix: name, labels, repo }, { parent: this });
 			}
 		}
+
 		this.registerOutputs();
 	}
 }

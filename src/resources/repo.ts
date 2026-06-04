@@ -105,5 +105,6 @@ export default class OrgRepository extends ComponentResource {
 				createLabels({ resourcePrefix: name, labels, repo }, { parent: this });
 			}
 		}
+		this.registerOutputs();
 	}
 }

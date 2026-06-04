@@ -36,10 +36,11 @@ jobs:
         run: bun test
 
       - name: Authenticate with Pulumi Cloud
-        uses: pulumi/auth-actions@v1
+        uses: pulumi/auth-actions@v2.1.0
         with:
           organization: diazdesandi
           requested-token-type: urn:pulumi:token-type:access_token:personal
+          scope: user:diazdesandi
 
       - name: Run Pulumi preview
         uses: pulumi/actions@v7

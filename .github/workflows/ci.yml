@@ -7,6 +7,9 @@ concurrency:
   group: pulumi-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  HUSKY: 0
+
 jobs:
   build:
     runs-on: ubuntu-slim

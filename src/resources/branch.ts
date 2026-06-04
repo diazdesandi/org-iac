@@ -11,10 +11,6 @@ export function createBranchProtection(
 	return new github.BranchProtection(
 		resourceName,
 		{ ...protection, repositoryId: repo.nodeId, pattern },
-		// deleteBeforeReplace + noParent alias: these resources were re-parented
-		// under OrgRepository (previously top-level). Without this, Pulumi would
-		// try to create the new parented resource before deleting the old root-level
-		// one, which GitHub rejects with "Name already protected".
 		pulumi.mergeOptions(
 			{
 				dependsOn: [repo],

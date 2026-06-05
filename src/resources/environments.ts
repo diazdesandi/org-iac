@@ -29,19 +29,15 @@ export function createEnvironments(
 			return pulumi.output(team.id).apply((id) => Number.parseInt(id, 10));
 		});
 
-		const branchPolicy =
-			deploymentBranchPolicy === "protected"
-				? { protectedBranches: true, customBranchPolicies: false }
-				: undefined;
-
 		new github.RepositoryEnvironment(
 			`${resourcePrefix}-env-${name}`,
 			{
 				repository: repo.name,
 				environment: name,
-				deploymentBranchPolicy: branchPolicy,
-				reviewers:
-					reviewerTeams.length > 0 ? [{ teams: reviewerTeams }] : undefined,
+				...(deploymentBranchPolicy === "protected"
+					? { deploymentBranchPolicy: { protectedBranches: true, customBranchPolicies: false } }
+					: {}),
+				...(reviewerTeams.length > 0 ? { reviewers: [{ teams: reviewerTeams }] } : {}),
 			},
 			{
 				dependsOn: [repo],

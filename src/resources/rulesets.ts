@@ -39,12 +39,14 @@ export function createRulesets(
 					deletion: rules.deletion,
 					nonFastForward: rules.nonFastForward,
 					pullRequest: rules.pullRequest,
-					requiredStatusChecks: rules.requiredStatusChecks
+					...(rules.requiredStatusChecks
 						? {
-								...rules.requiredStatusChecks,
-								requiredChecks: rules.requiredStatusChecks.requiredChecks ?? [],
+								requiredStatusChecks: {
+									...rules.requiredStatusChecks,
+									requiredChecks: rules.requiredStatusChecks.requiredChecks ?? [],
+								},
 							}
-						: undefined,
+						: {}),
 				},
 			});
 		});

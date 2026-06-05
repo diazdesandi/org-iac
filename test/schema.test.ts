@@ -127,7 +127,9 @@ describe("duplicate detection", () => {
 		expect(r.success).toBe(false);
 		if (!r.success) {
 			expect(
-				r.issues.some((i) => /duplicate environment name "prod"/.test(i.message)),
+				r.issues.some((i) =>
+					/duplicate environment name "prod"/.test(i.message),
+				),
 			).toBe(true);
 		}
 	});

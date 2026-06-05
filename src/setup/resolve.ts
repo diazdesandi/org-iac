@@ -37,9 +37,18 @@ function toBranchProtectionEntry(
 		requiredLinearHistory: config.requiredLinearHistory,
 		requireConversationResolution: config.requireConversationResolution,
 		...(config.requiredStatusChecks?.length
-			? { requiredStatusChecks: [{ contexts: config.requiredStatusChecks, strict: config.strictStatusChecks }] }
+			? {
+					requiredStatusChecks: [
+						{
+							contexts: config.requiredStatusChecks,
+							strict: config.strictStatusChecks,
+						},
+					],
+				}
 			: {}),
-		...(Object.keys(prReviewConfig).length ? { requiredPullRequestReviews: [prReviewConfig] } : {}),
+		...(Object.keys(prReviewConfig).length
+			? { requiredPullRequestReviews: [prReviewConfig] }
+			: {}),
 	};
 }
 

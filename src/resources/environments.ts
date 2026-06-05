@@ -35,9 +35,16 @@ export function createEnvironments(
 				repository: repo.name,
 				environment: name,
 				...(deploymentBranchPolicy === "protected"
-					? { deploymentBranchPolicy: { protectedBranches: true, customBranchPolicies: false } }
+					? {
+							deploymentBranchPolicy: {
+								protectedBranches: true,
+								customBranchPolicies: false,
+							},
+						}
 					: {}),
-				...(reviewerTeams.length > 0 ? { reviewers: [{ teams: reviewerTeams }] } : {}),
+				...(reviewerTeams.length > 0
+					? { reviewers: [{ teams: reviewerTeams }] }
+					: {}),
 			},
 			{
 				dependsOn: [repo],

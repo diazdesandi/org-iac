@@ -8,7 +8,7 @@ import type {
 	TeamsConfig,
 } from "@/types";
 import type { RepoBuildContext } from "./types";
-import { normalizeActors, normalizeBranchPattern } from "./utils";
+import { compact, normalizeActors, normalizeBranchPattern } from "./utils";
 
 // Branch protection
 function toBranchProtectionEntry(
@@ -21,9 +21,11 @@ function toBranchProtectionEntry(
 	);
 
 	const prReviewConfig = {
-		...(config.requiredReviewCount !== undefined ? { requiredApprovingReviewCount: config.requiredReviewCount } : {}),
-		...(config.dismissStaleReviews !== undefined ? { dismissStaleReviews: config.dismissStaleReviews } : {}),
-		...(config.requireCodeOwnerReviews !== undefined ? { requireCodeOwnerReviews: config.requireCodeOwnerReviews } : {}),
+		...compact({
+			requiredApprovingReviewCount: config.requiredReviewCount,
+			dismissStaleReviews: config.dismissStaleReviews,
+			requireCodeOwnerReviews: config.requireCodeOwnerReviews,
+		}),
 		...(dismissalRestrictions.length ? { dismissalRestrictions } : {}),
 	};
 

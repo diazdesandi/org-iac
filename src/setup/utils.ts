@@ -19,6 +19,12 @@ export function normalizeActors(actors: string[], org: string): string[] {
 	});
 }
 
+export function compact<T extends Record<string, unknown>>(obj: T): Partial<T> {
+	return Object.fromEntries(
+		Object.entries(obj).filter(([, v]) => v !== undefined),
+	) as Partial<T>;
+}
+
 export function issue(path: string, message: string): ValidationIssue {
 	return { path, message };
 }

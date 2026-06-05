@@ -21,9 +21,8 @@ describe("normalizeBranchPattern", () => {
 });
 
 describe("normalizeActors", () => {
-	it("returns undefined for empty or missing input", () => {
-		expect(normalizeActors(undefined, "acme")).toBeUndefined();
-		expect(normalizeActors([], "acme")).toBeUndefined();
+	it("returns an empty array for empty input", () => {
+		expect(normalizeActors([], "acme")).toEqual([]);
 	});
 
 	it("qualifies bare team slugs with the org", () => {

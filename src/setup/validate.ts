@@ -1,11 +1,7 @@
 import { groupBy, uniq } from "es-toolkit";
 import type { InfraConfig, LabelGroups } from "@/types";
 import type { ValidationIssue } from "./types";
-import { normalizeBranchPattern } from "./utils";
-
-function issue(path: string, message: string): ValidationIssue {
-	return { path, message };
-}
+import { issue, normalizeBranchPattern } from "./utils";
 
 function validateTeamRefs(config: InfraConfig): ValidationIssue[] {
 	const { repos, teams } = config;

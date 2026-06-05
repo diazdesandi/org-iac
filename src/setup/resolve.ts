@@ -1,36 +1,31 @@
 import type {
 	BranchProtectionConfig,
 	BranchProtectionEntry,
-	LabelSet,
-	OrgConfig,
 	RepoConfig,
 	ResolvedRepoConfig,
 	TeamAccess,
 	TeamResourceMap,
 	TeamsConfig,
 } from "@/types";
+import type { RepoBuildContext } from "./types";
 import { normalizeActors, normalizeBranchPattern } from "./utils";
 
 // Branch protection
-
 function toBranchProtectionEntry(
 	config: BranchProtectionConfig,
 	organization: string,
 ): BranchProtectionEntry {
 	const dismissalRestrictions = normalizeActors(
-		config.restrictDismissalsToTeams,
+		config.restrictDismissalsToTeams || [],
 		organization,
 	);
 
 	const prReviewConfig = {
-		requiredApprovingReviewCount: config.requiredReviewCount,
-		dismissStaleReviews: config.dismissStaleReviews,
-		requireCodeOwnerReviews: config.requireCodeOwnerReviews,
-		...(dismissalRestrictions ? { dismissalRestrictions } : {}),
+		...(config.requiredReviewCount !== undefined ? { requiredApprovingReviewCount: config.requiredReviewCount } : {}),
+		...(config.dismissStaleReviews !== undefined ? { dismissStaleReviews: config.dismissStaleReviews } : {}),
+		...(config.requireCodeOwnerReviews !== undefined ? { requireCodeOwnerReviews: config.requireCodeOwnerReviews } : {}),
+		...(dismissalRestrictions.length ? { dismissalRestrictions } : {}),
 	};
-	const hasPrReviews = Object.values(prReviewConfig).some(
-		(v) => v !== undefined,
-	);
 
 	return {
 		enforceAdmins: config.enforceAdmins ?? true,
@@ -39,20 +34,14 @@ function toBranchProtectionEntry(
 		requireSignedCommits: config.requireSignedCommits,
 		requiredLinearHistory: config.requiredLinearHistory,
 		requireConversationResolution: config.requireConversationResolution,
-		requiredStatusChecks: config.requiredStatusChecks?.length
-			? [
-					{
-						contexts: config.requiredStatusChecks,
-						strict: config.strictStatusChecks,
-					},
-				]
-			: undefined,
-		requiredPullRequestReviews: hasPrReviews ? [prReviewConfig] : undefined,
+		...(config.requiredStatusChecks?.length
+			? { requiredStatusChecks: [{ contexts: config.requiredStatusChecks, strict: config.strictStatusChecks }] }
+			: {}),
+		...(Object.keys(prReviewConfig).length ? { requiredPullRequestReviews: [prReviewConfig] } : {}),
 	};
 }
 
 // Team access
-
 export function resolveTeamAccess(
 	repoName: string,
 	repoAccess: TeamsConfig["repoAccess"],
@@ -67,14 +56,6 @@ export function resolveTeamAccess(
 }
 
 // Repo config
-
-export interface RepoBuildContext {
-	defaults: OrgConfig["defaults"];
-	teamAccess: TeamAccess[];
-	labels: LabelSet;
-	organization: string;
-}
-
 export function buildRepoConfig(
 	repo: RepoConfig,
 	ctx: RepoBuildContext,

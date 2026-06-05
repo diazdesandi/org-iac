@@ -36,4 +36,8 @@ describe("normalizeActors", () => {
 			"other-org/team",
 		]);
 	});
+
+	it("throws for whitespace-only actors", () => {
+		expect(() => normalizeActors(["  "], "acme")).toThrow(/invalid actor/);
+	});
 });

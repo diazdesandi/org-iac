@@ -6,6 +6,7 @@ import {
 	RepoConfigSchema,
 	ReposFileSchema,
 	RulesetsFileSchema,
+	TeamsConfigSchema,
 } from "@/types";
 
 describe("RepoConfigSchema", () => {
@@ -99,6 +100,34 @@ describe("duplicate detection", () => {
 		if (!r.success) {
 			expect(
 				r.issues.some((i) => /duplicate ruleset id "dup"/.test(i.message)),
+			).toBe(true);
+		}
+	});
+
+	it("rejects duplicate team slugs", () => {
+		const team = (slug: string) => ({ slug, name: slug });
+		const r = v.safeParse(TeamsConfigSchema, {
+			teams: [team("eng"), team("eng")],
+			repoAccess: {},
+		});
+		expect(r.success).toBe(false);
+		if (!r.success) {
+			expect(
+				r.issues.some((i) => /duplicate team slug "eng"/.test(i.message)),
+			).toBe(true);
+		}
+	});
+
+	it("rejects duplicate environment names within a repo", () => {
+		const r = v.safeParse(RepoConfigSchema, {
+			name: "r",
+			description: "d",
+			environments: [{ name: "prod" }, { name: "prod" }],
+		});
+		expect(r.success).toBe(false);
+		if (!r.success) {
+			expect(
+				r.issues.some((i) => /duplicate environment name "prod"/.test(i.message)),
 			).toBe(true);
 		}
 	});

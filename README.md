@@ -1,5 +1,10 @@
 # org-config
 
+[![CI](https://github.com/diazdesandi/org-iac/actions/workflows/ci.yml/badge.svg)](https://github.com/diazdesandi/org-iac/actions/workflows/ci.yml)
+[![Deploy](https://github.com/diazdesandi/org-iac/actions/workflows/cd.yml/badge.svg)](https://github.com/diazdesandi/org-iac/actions/workflows/cd.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=diazdesandi_org-iac&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=diazdesandi_org-iac)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=diazdesandi_org-iac&metric=coverage)](https://sonarcloud.io/summary/new_code?id=diazdesandi_org-iac)
+
 GitHub organization-as-code. The org's repositories, teams, branch rulesets, and
 labels are declared in YAML under [`config/`](config/) and provisioned with
 [Pulumi](https://www.pulumi.com/) + the [`@pulumi/github`](https://www.pulumi.com/registry/packages/github/)
@@ -7,7 +12,7 @@ provider. Runs on [Bun](https://bun.sh/).
 
 ## How it works
 
-```
+```text
 config/*.yaml ──parse/validate──▶ resolve defaults ──▶ Pulumi resources
    (valibot)         (src/setup)        (src/setup)       (src/resources)
 ```

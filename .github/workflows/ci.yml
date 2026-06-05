@@ -39,6 +39,11 @@ jobs:
       - name: Run tests
         run: bun test
 
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   preview:
     permissions:
       pull-requests: write
